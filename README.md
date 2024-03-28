@@ -116,6 +116,7 @@ npm run run:server
 Below are the list of API endpoints accessible in the server.
 
 `GET` - `/get_escrow_details/:escrow_id`
+
 `Returns 200, 400/404` on error/not-found on success with escrow data:
 
 ```
@@ -135,8 +136,11 @@ Below are the list of API endpoints accessible in the server.
 }
 ```
 
-`POST` - `/sign_purchase` - body required:
+`POST` - `/sign_purchase`
+
 `Returns 200, 400/404` on error/not-found on success
+
+JSON body required:
 
 ```
 {
