@@ -154,3 +154,23 @@ JSON body required:
   }
 }
 ```
+
+## EAS Attestation Scheme Creation
+
+Create the following attestation schema on:
+
+```
+https://base.easscan.org/schema/create
+```
+
+With the following schme structure:
+
+```
+escrowId - address
+buyer - address
+seller - address
+token - address
+amount - uint256
+```
+
+Take the scheme registry UID and update the environment file variable `ATTESTATION_REGISTRY_ID`

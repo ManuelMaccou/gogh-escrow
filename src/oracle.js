@@ -3,9 +3,15 @@ env.config();
 const ethers = require("ethers");
 const Mongo = require("./mongo.js");
 const logger = require("./logger.js");
+const { EAS, SchemaEncoder } = require("@ethereum-attestation-service/eas-sdk");
 const goghContractAbi = require("./assets/gogh-contract.abi.json");
 
-const { BASE_ALCHEMY_API, GOGH_CONTRACT_ADDRESS } = process.env;
+const {
+  BASE_ALCHEMY_API,
+  GOGH_CONTRACT_ADDRESS,
+  ATTESTATION_REGISTRY_ID,
+  ATTESTATION_ATTESTATOR_PRIVATE_KEY,
+} = process.env;
 
 const mongoClient = new Mongo();
 const provider = new ethers.providers.JsonRpcProvider(BASE_ALCHEMY_API);
@@ -14,6 +20,57 @@ const contract = new ethers.Contract(
   goghContractAbi,
   provider
 );
+const eas = new EAS("0x0000000000000000000000000000000000000000");
+const schemaEncoder = new SchemaEncoder(
+  "address escrowId, address buyer, address seller, address token, uint256 amount"
+);
+const easSigner = new ethers.Wallet(
+  ATTESTATION_ATTESTATOR_PRIVATE_KEY,
+  provider
+);
+eas.connect(easSigner);
+
+const attest = (escrowData) => {
+  return new Promise((resolved, rejected) => {
+    const encodedData = schemaEncoder.encodeData([
+      { name: "escrowId", value: escrowData.escrowId, type: "address" },
+      { name: "buyer", value: escrowData.owner, type: "address" },
+      { name: "seller", value: escrowData.recipient, type: "address" },
+      { name: "token", value: escrowData.token, type: "address" },
+      { name: "amount", value: escrowData.amount, type: "uint256" },
+    ]);
+    eas
+      .attest({
+        schema: ATTESTATION_REGISTRY_ID,
+        data: {
+          recipient: "0xFD50b031E778fAb33DfD2Fc3Ca66a1EeF0652165",
+          expirationTime: 0,
+          revocable: false,
+          data: encodedData,
+        },
+      })
+      .then((r) => {
+        const tx = r;
+        return tx.wait();
+      })
+      .then((r) => {
+        const newAttestationUID = r;
+        logger.print(
+          `Attestation successfully created for escrow (released) ${escrowData.escrowId} - ${newAttestationUID}.`
+        );
+        resolved(newAttestationUID);
+      })
+      .catch((e) => {
+        logger.error(
+          "An error has occured while creating attestation: " + typeof e ===
+            "object"
+            ? JSON.stringify(e)
+            : e
+        );
+        rejected(false);
+      });
+  });
+};
 
 const checkEvents = () => {
   logger.print("Starting Oracle...");
@@ -132,6 +189,7 @@ const checkEvents = () => {
     const from = `0x${data[1].substr(-40)}`;
     const recipient = `0x${data[2].substr(-40)}`;
     const amount = `0x${data[3].substr(-40)}`;
+    const token = `0x${data[4].substr(-40)}`;
     mongoClient
       .update(
         "escrows",
@@ -161,6 +219,14 @@ const checkEvents = () => {
         logger.print(
           `Product sold, escrow with id ${escrowId} has been released.`
         );
+        const escrowData = {
+          escrowId,
+          owner: from,
+          recipient,
+          amount,
+          token,
+        };
+        return attest(escrowData);
       })
       .catch((e) => {
         logger.error(
