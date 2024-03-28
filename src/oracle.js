@@ -1,6 +1,7 @@
 const env = require("dotenv");
 env.config();
-const ethers = require("ethers");
+const ethers = require("ethers5");
+const ethers6 = require("ethers6");
 const Mongo = require("./mongo.js");
 const logger = require("./logger.js");
 const { EAS, SchemaEncoder } = require("@ethereum-attestation-service/eas-sdk");
@@ -15,18 +16,19 @@ const {
 
 const mongoClient = new Mongo();
 const provider = new ethers.providers.JsonRpcProvider(BASE_ALCHEMY_API);
+const providerEthers6 = new ethers6.JsonRpcProvider(BASE_ALCHEMY_API);
 const contract = new ethers.Contract(
   GOGH_CONTRACT_ADDRESS,
   goghContractAbi,
   provider
 );
-const eas = new EAS("0x0000000000000000000000000000000000000000");
+const eas = new EAS("0x4200000000000000000000000000000000000021");
 const schemaEncoder = new SchemaEncoder(
-  "address escrowId, address buyer, address seller, address token, uint256 amount"
+  "address escrowId,address buyer,address seller,address token,uint256 amount"
 );
-const easSigner = new ethers.Wallet(
+const easSigner = new ethers6.Wallet(
   ATTESTATION_ATTESTATOR_PRIVATE_KEY,
-  provider
+  providerEthers6
 );
 eas.connect(easSigner);
 
@@ -37,13 +39,17 @@ const attest = (escrowData) => {
       { name: "buyer", value: escrowData.owner, type: "address" },
       { name: "seller", value: escrowData.recipient, type: "address" },
       { name: "token", value: escrowData.token, type: "address" },
-      { name: "amount", value: escrowData.amount, type: "uint256" },
+      {
+        name: "amount",
+        value: "0x" + escrowData.amount.toString(16),
+        type: "uint256",
+      },
     ]);
     eas
       .attest({
         schema: ATTESTATION_REGISTRY_ID,
         data: {
-          recipient: "0xFD50b031E778fAb33DfD2Fc3Ca66a1EeF0652165",
+          recipient: "0x0000000000000000000000000000000000000000",
           expirationTime: 0,
           revocable: false,
           data: encodedData,
@@ -56,17 +62,12 @@ const attest = (escrowData) => {
       .then((r) => {
         const newAttestationUID = r;
         logger.print(
-          `Attestation successfully created for escrow (released) ${escrowData.escrowId} - ${newAttestationUID}.`
+          `Attestation successfully created for escrow (released) ${escrowData.escrowId} - attestion UID: ${newAttestationUID}.`
         );
         resolved(newAttestationUID);
       })
       .catch((e) => {
-        logger.error(
-          "An error has occured while creating attestation: " + typeof e ===
-            "object"
-            ? JSON.stringify(e)
-            : e
-        );
+        logger.error("An error has occured while creating attestation: " + e);
         rejected(false);
       });
   });
@@ -188,7 +189,7 @@ const checkEvents = () => {
     const escrowId = `0x${data[0].substr(-40)}`;
     const from = `0x${data[1].substr(-40)}`;
     const recipient = `0x${data[2].substr(-40)}`;
-    const amount = `0x${data[3].substr(-40)}`;
+    const amount = parseInt(data[3], 16);
     const token = `0x${data[4].substr(-40)}`;
     mongoClient
       .update(
@@ -228,6 +229,19 @@ const checkEvents = () => {
         };
         return attest(escrowData);
       })
+      .then((r) => {
+        mongoClient.update(
+          "escrows",
+          {
+            escrowId,
+          },
+          {
+            $set: {
+              attestation: r,
+            },
+          }
+        );
+      })
       .catch((e) => {
         logger.error(
           `Failed to create local escrow data (released escrow) for ${escrowId}.`
@@ -243,7 +257,7 @@ const checkEvents = () => {
     const escrowId = `0x${data[0].substr(-40)}`;
     const from = `0x${data[1].substr(-40)}`;
     const recipient = `0x${data[2].substr(-40)}`;
-    const amount = `0x${data[3].substr(-40)}`;
+    const amount = parseInt(data[3], 16);
     mongoClient
       .update(
         "escrows",

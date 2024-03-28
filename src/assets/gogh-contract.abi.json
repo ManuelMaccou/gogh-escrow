@@ -210,6 +210,12 @@
       },
       {
         "indexed": false,
+        "internalType": "address",
+        "name": "_token",
+        "type": "address"
+      },
+      {
+        "indexed": false,
         "internalType": "bytes",
         "name": "_ownerSignature",
         "type": "bytes"
@@ -407,7 +413,7 @@
   },
   {
     "inputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "constructor"
   },
   {

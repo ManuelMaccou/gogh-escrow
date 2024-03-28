@@ -281,7 +281,6 @@ serverHandler.post("/sign_purchase", (req, res) => {
         logger.error(
           `Failed to update local escrow data to insert signature for ${escrowData.escrowId}.`
         );
-
         return;
       }
       logger.print(

@@ -1,0 +1,1511 @@
+html>
+  <head>
+    <script
+      src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"
+      type="application/javascript"
+    ></script>
+    <style type="text/css">
+      body {
+        width: 100%;
+        font-family: arial;
+        padding: 0;
+        margin: 0;
+        color: #333;
+        text-align: center;
+      }
+      hr {
+        border: 0;
+        border-top: solid 1px gray;
+        width: 100%;
+      }
+      input {
+        padding: 10px;
+      }
+      button {
+        padding: 10px;
+        cursor: pointer;
+      }
+      h2,
+      h3,
+      h1 {
+        margin: 0;
+        color: black;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      style="
+        margin: auto;
+        padding: 20px;
+        padding-bottom: 0;
+        text-align: left;
+        max-width: 1400px;
+      "
+    >
+      <h1>Shopping</h1>
+      <p>
+        Private keys for buyer and seller are preloaded - these are burner
+        wallets. <br />For USDC Sepolia tokens, check the
+        <a target="_blank" href="https://faucet.circle.com/">faucet</a>.
+      </p>
+      <h3>Instruction</h3>
+      <ul>
+        <li>Approve USDC token spend</li>
+        <li>Buy the shoes - create an escrow</li>
+        <li>Sign the pending sale as a seller</li>
+        <li>Release the escrow</li>
+      </ul>
+      <h3>Accounts</h3>
+      <ul>
+        <li>
+          Buyer's Account:
+          <a
+            target="_blank"
+            href="https://sepolia.basescan.org/address/0x70a6DCc01529E9c0bEDcC6a7f108c3E4e1B067E9"
+            >0x70a6DCc01529E9c0bEDcC6a7f108c3E4e1B067E9</a
+          >
+        </li>
+        <li>
+          Seller's Account:
+          <a
+            target="_blank"
+            href="https://sepolia.basescan.org/address/0xf74D69279B32cD30357c529b6c547406657240B8"
+            >0xf74D69279B32cD30357c529b6c547406657240B8</a
+          >
+        </li>
+        <li>
+          Gogh Contract:
+          <a
+            target="_blank"
+            href="https://sepolia.basescan.org/address/0x0359c10b9769db425a75b9e086f5d798bacddf5f"
+            >0x0359c10b9769db425a75b9e086f5d798bacddf5f</a
+          >
+        </li>
+        <li>
+          Gogh Contract Owner:
+          <a
+            target="_blank"
+            href="https://sepolia.basescan.org/address/0x2192C1b3C27D26caED443893749de6ACf8651580"
+            >0x2192C1b3C27D26caED443893749de6ACf8651580</a
+          >
+        </li>
+        <li>
+          USDC Token Address:
+          <a
+            target="_blank"
+            href="https://sepolia.basescan.org/address/0x036CbD53842c5426634e7929541eC2318f3dCF7e"
+            >0x036CbD53842c5426634e7929541eC2318f3dCF7e</a
+          >
+        </li>
+      </ul>
+    </div>
+    <div
+      style="
+        display: flex;
+        flex-direction: row;
+        gap: 10px;
+        max-width: 1400px;
+        margin: auto;
+        padding: 20px;
+      "
+    >
+      <div
+        style="
+          flex: 1;
+          border: solid 1px gray;
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          padding: 20px;
+          border-radius: 10px;
+          text-align: center;
+        "
+      >
+        <h1>Buyer View</h1>
+        <h2>Buy item: Shoes - 0.1 USDC</h2>
+        <div style="width: 100%">
+          Info.
+          <br />
+          <textarea
+            id="buyer-info"
+            style="
+              width: 100%;
+              border: solid 1px gray;
+              border-radius: 10px;
+              resize: none;
+              padding: 10px;
+              height: 300px;
+              outline: none;
+            "
+            readonly
+          ></textarea>
+        </div>
+        <button onClick="approveTokenSpend()">1. Approve Token Spend</button>
+        <button onClick="createEscrow()">2. Send intent to Buy Item</button>
+        <button onClick="signSale(false)">Complete Purchase</button>
+        <button onClick="cancelPurchase()">Cancel Purchase</button>
+      </div>
+      <div
+        style="
+          flex: 1;
+          border: solid 1px gray;
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          padding: 20px;
+          border-radius: 10px;
+          text-align: center;
+        "
+      >
+        <h1>Seller View</h1>
+        <h2>Pending Sales</h2>
+        <div style="width: 100%">
+          Info.
+          <br />
+          <textarea
+            id="seller-info"
+            style="
+              width: 100%;
+              border: solid 1px gray;
+              border-radius: 10px;
+              resize: none;
+              padding: 10px;
+              height: 300px;
+              outline: none;
+            "
+            readonly
+          ></textarea>
+        </div>
+        <button onClick="signSale()">Approve Sale (Sign signature)</button>
+      </div>
+      <div
+        style="
+          flex: 1;
+          border: solid 1px gray;
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          padding: 20px;
+          border-radius: 10px;
+          text-align: center;
+        "
+      >
+        <h1>Admin View</h1>
+        <h2>Contract Controls</h2>
+        <div style="width: 100%">
+          Info.
+          <br />
+          <textarea
+            id="contract-info"
+            style="
+              width: 100%;
+              border: solid 1px gray;
+              border-radius: 10px;
+              padding: 10px;
+              resize: none;
+              height: 300px;
+              outline: none;
+            "
+            readonly
+          ></textarea>
+        </div>
+        <button onClick="enableContract()">Enable Contract</button>
+        <button onClick="disableContract()">Disable Contract</button>
+        <hr />
+        <input id="token-add" placeholder="Token address" />
+        <button onClick="addToken(document.getElementById('token-add').value)">
+          Add Token
+        </button>
+        <hr />
+        <input id="token-remove" placeholder="Token address" />
+        <button
+          onClick="removeToken(document.getElementById('token-remove').value)"
+        >
+          Remove Token
+        </button>
+        <hr />
+        <input id="escrow-id" placeholder="Escrow ID" />
+        <button
+          onClick="checkEscrowDetails(document.getElementById('escrow-id').value)"
+        >
+          Get Escrow Details
+        </button>
+        <hr />
+        <input id="fee" placeholder="Fee %" />
+        <button onClick="changeFee(document.getElementById('fee').value)">
+          Set Fee
+        </button>
+      </div>
+    </div>
+  </body>
+  <script type="text/javascript">
+    const elements = {
+      contractInfo: document.getElementById("contract-info"),
+      buyerInfo: document.getElementById("buyer-info"),
+      sellerInfo: document.getElementById("seller-info"),
+    };
+    const provider = new ethers.providers.JsonRpcProvider(
+      "https://base-sepolia.g.alchemy.com/v2/DO8BiTTs-jCAUSojKnkVZfNXmFmxxE-e"
+    );
+    const buyerWallet = new ethers.Wallet(
+      "0xf0c10f6d42ce7f9e7c0cdabb227233f291f4ac56e20eeeb2bcadaad985c6dcf3",
+      provider
+    );
+    const sellerWallet = new ethers.Wallet(
+      "0xf2f5b9b352e253eeda561dfa652a1c6d484bdc4597545ce21b8a384d3a50fdbf",
+      provider
+    );
+    const contractOwnerWallet = new ethers.Wallet(
+      "0xfd831731c41452206316a389b5ca989698ea3fbb883df152b78c6669a0ea6d42",
+      provider
+    );
+    const tokenAddress = "0x036CbD53842c5426634e7929541eC2318f3dCF7e";
+    const contractAddress = "0x0359c10b9769db425a75b9e086f5d798bacddf5f";
+    const contractABI = [
+        {
+            "anonymous": false,
+            "inputs": [
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "_escrowId",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "_owner",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "_recipient",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "_amount",
+                "type": "uint256"
+            }
+            ],
+            "name": "canceled",
+            "type": "event"
+        },
+        {
+            "anonymous": false,
+            "inputs": [
+            {
+                "indexed": false,
+                "internalType": "bool",
+                "name": "_enabled",
+                "type": "bool"
+            }
+            ],
+            "name": "contractState",
+            "type": "event"
+        },
+        {
+            "anonymous": false,
+            "inputs": [
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "_uid",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "_escrowId",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "_owner",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "_recipient",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "_token",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "_amount",
+                "type": "uint256"
+            }
+            ],
+            "name": "created",
+            "type": "event"
+        },
+        {
+            "anonymous": false,
+            "inputs": [
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "_client",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "_amount",
+                "type": "uint256"
+            }
+            ],
+            "name": "depositDetails",
+            "type": "event"
+        },
+        {
+            "anonymous": false,
+            "inputs": [
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "_escrowId",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "_owner",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "_recipient",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "_amount",
+                "type": "uint256"
+            }
+            ],
+            "name": "details",
+            "type": "event"
+        },
+        {
+            "anonymous": false,
+            "inputs": [
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "_token",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "_amount",
+                "type": "uint256"
+            }
+            ],
+            "name": "emergencyWithdrawDetails",
+            "type": "event"
+        },
+        {
+            "anonymous": false,
+            "inputs": [
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "_fee",
+                "type": "uint256"
+            }
+            ],
+            "name": "feeState",
+            "type": "event"
+        },
+        {
+            "anonymous": false,
+            "inputs": [
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "_admin",
+                "type": "address"
+            }
+            ],
+            "name": "ownership",
+            "type": "event"
+        },
+        {
+            "anonymous": false,
+            "inputs": [
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "_escrowId",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "_owner",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "_recipient",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "_amount",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "_token",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "bytes",
+                "name": "_ownerSignature",
+                "type": "bytes"
+            },
+            {
+                "indexed": false,
+                "internalType": "bytes",
+                "name": "_recipientSignature",
+                "type": "bytes"
+            }
+            ],
+            "name": "released",
+            "type": "event"
+        },
+        {
+            "anonymous": false,
+            "inputs": [
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "_token",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "bool",
+                "name": "_enabled",
+                "type": "bool"
+            }
+            ],
+            "name": "tokenState",
+            "type": "event"
+        },
+        {
+            "anonymous": false,
+            "inputs": [
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "_client",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "_amount",
+                "type": "uint256"
+            }
+            ],
+            "name": "withdrawDetails",
+            "type": "event"
+        },
+        {
+            "inputs": [
+            {
+                "internalType": "address",
+                "name": "_escrowId",
+                "type": "address"
+            }
+            ],
+            "name": "cancelEscrow",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_fee",
+                "type": "uint256"
+            }
+            ],
+            "name": "changeFee",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_uid",
+                "type": "uint256"
+            },
+            {
+                "internalType": "address",
+                "name": "_recipient",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "_token",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_amount",
+                "type": "uint256"
+            }
+            ],
+            "name": "createEscrow",
+            "outputs": [],
+            "stateMutability": "payable",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "disable",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+            {
+                "internalType": "address",
+                "name": "_token",
+                "type": "address"
+            }
+            ],
+            "name": "disableToken",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+            {
+                "internalType": "address",
+                "name": "_token",
+                "type": "address"
+            }
+            ],
+            "name": "emergencyWithdraw",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "enable",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+            {
+                "internalType": "address",
+                "name": "_token",
+                "type": "address"
+            }
+            ],
+            "name": "enableToken",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+            {
+                "internalType": "address",
+                "name": "_escrowId",
+                "type": "address"
+            },
+            {
+                "internalType": "bytes",
+                "name": "_ownerSignature",
+                "type": "bytes"
+            },
+            {
+                "internalType": "bytes",
+                "name": "_recipientSignature",
+                "type": "bytes"
+            }
+            ],
+            "name": "releaseEscrow",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+            {
+                "internalType": "address",
+                "name": "_admin",
+                "type": "address"
+            }
+            ],
+            "name": "transferOwner",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "stateMutability": "payable",
+            "type": "constructor"
+        },
+        {
+            "inputs": [
+            {
+                "internalType": "address",
+                "name": "_token",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "_client",
+                "type": "address"
+            }
+            ],
+            "name": "getBalance",
+            "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+            {
+                "internalType": "address",
+                "name": "_escrowId",
+                "type": "address"
+            }
+            ],
+            "name": "getEscrowDetails",
+            "outputs": [
+            {
+                "components": [
+                {
+                    "internalType": "uint256",
+                    "name": "uid",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "address",
+                    "name": "escrowId",
+                    "type": "address"
+                },
+                {
+                    "internalType": "address",
+                    "name": "token",
+                    "type": "address"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "amount",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "address",
+                    "name": "recipient",
+                    "type": "address"
+                },
+                {
+                    "internalType": "address",
+                    "name": "owner",
+                    "type": "address"
+                },
+                {
+                    "internalType": "bool",
+                    "name": "released",
+                    "type": "bool"
+                },
+                {
+                    "internalType": "bool",
+                    "name": "canceled",
+                    "type": "bool"
+                }
+                ],
+                "internalType": "struct Escrow",
+                "name": "",
+                "type": "tuple"
+            }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+            {
+                "internalType": "bytes32",
+                "name": "_ethSignedMessageHash",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "bytes",
+                "name": "_signature",
+                "type": "bytes"
+            }
+            ],
+            "name": "recoverSigner",
+            "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+            ],
+            "stateMutability": "pure",
+            "type": "function"
+        },
+        {
+            "inputs": [
+            {
+                "internalType": "bytes",
+                "name": "sig",
+                "type": "bytes"
+            }
+            ],
+            "name": "splitSignature",
+            "outputs": [
+            {
+                "internalType": "bytes32",
+                "name": "r",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "bytes32",
+                "name": "s",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "uint8",
+                "name": "v",
+                "type": "uint8"
+            }
+            ],
+            "stateMutability": "pure",
+            "type": "function"
+        },
+        {
+            "inputs": [
+            {
+                "components": [
+                {
+                    "internalType": "uint256",
+                    "name": "uid",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "address",
+                    "name": "escrowId",
+                    "type": "address"
+                },
+                {
+                    "internalType": "address",
+                    "name": "token",
+                    "type": "address"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "amount",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "address",
+                    "name": "recipient",
+                    "type": "address"
+                },
+                {
+                    "internalType": "address",
+                    "name": "owner",
+                    "type": "address"
+                },
+                {
+                    "internalType": "bool",
+                    "name": "released",
+                    "type": "bool"
+                },
+                {
+                    "internalType": "bool",
+                    "name": "canceled",
+                    "type": "bool"
+                }
+                ],
+                "internalType": "struct Escrow",
+                "name": "_escrowData",
+                "type": "tuple"
+            },
+            {
+                "internalType": "bytes",
+                "name": "_ownerSignature",
+                "type": "bytes"
+            },
+            {
+                "internalType": "bytes",
+                "name": "_recipientSignature",
+                "type": "bytes"
+            }
+            ],
+            "name": "validateSignatures",
+            "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+            ],
+            "stateMutability": "pure",
+            "type": "function"
+        }
+        ];
+    const tokenABI = [
+      {
+        anonymous: false,
+        inputs: [
+          {
+            indexed: true,
+            internalType: "address",
+            name: "owner",
+            type: "address",
+          },
+          {
+            indexed: true,
+            internalType: "address",
+            name: "spender",
+            type: "address",
+          },
+          {
+            indexed: false,
+            internalType: "uint256",
+            name: "value",
+            type: "uint256",
+          },
+        ],
+        name: "Approval",
+        type: "event",
+      },
+      {
+        anonymous: false,
+        inputs: [
+          {
+            indexed: true,
+            internalType: "address",
+            name: "from",
+            type: "address",
+          },
+          {
+            indexed: true,
+            internalType: "address",
+            name: "to",
+            type: "address",
+          },
+          {
+            indexed: false,
+            internalType: "uint256",
+            name: "value",
+            type: "uint256",
+          },
+        ],
+        name: "Transfer",
+        type: "event",
+      },
+      {
+        inputs: [
+          {
+            internalType: "address",
+            name: "owner",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "spender",
+            type: "address",
+          },
+        ],
+        name: "allowance",
+        outputs: [
+          {
+            internalType: "uint256",
+            name: "",
+            type: "uint256",
+          },
+        ],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
+        inputs: [
+          {
+            internalType: "address",
+            name: "spender",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "amount",
+            type: "uint256",
+          },
+        ],
+        name: "approve",
+        outputs: [
+          {
+            internalType: "bool",
+            name: "",
+            type: "bool",
+          },
+        ],
+        stateMutability: "nonpayable",
+        type: "function",
+      },
+      {
+        inputs: [
+          {
+            internalType: "address",
+            name: "account",
+            type: "address",
+          },
+        ],
+        name: "balanceOf",
+        outputs: [
+          {
+            internalType: "uint256",
+            name: "",
+            type: "uint256",
+          },
+        ],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
+        inputs: [],
+        name: "totalSupply",
+        outputs: [
+          {
+            internalType: "uint256",
+            name: "",
+            type: "uint256",
+          },
+        ],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
+        inputs: [
+          {
+            internalType: "address",
+            name: "recipient",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "amount",
+            type: "uint256",
+          },
+        ],
+        name: "transfer",
+        outputs: [
+          {
+            internalType: "bool",
+            name: "",
+            type: "bool",
+          },
+        ],
+        stateMutability: "nonpayable",
+        type: "function",
+      },
+      {
+        inputs: [
+          {
+            internalType: "address",
+            name: "sender",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "recipient",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "amount",
+            type: "uint256",
+          },
+        ],
+        name: "transferFrom",
+        outputs: [
+          {
+            internalType: "bool",
+            name: "",
+            type: "bool",
+          },
+        ],
+        stateMutability: "nonpayable",
+        type: "function",
+      },
+    ];
+    const token = new ethers.Contract(tokenAddress, tokenABI, buyerWallet);
+    const contract = new ethers.Contract(
+      contractAddress,
+      contractABI,
+      contractOwnerWallet
+    );
+    const contractBuyer = new ethers.Contract(
+      contractAddress,
+      contractABI,
+      buyerWallet
+    );
+    const contractSeller = new ethers.Contract(
+      contractAddress,
+      contractABI,
+      sellerWallet
+    );
+    let transactionPending = false;
+    let productId;
+    let escrowData;
+    let signedEscrowBuyer;
+    let signedEscrowSeller;
+
+    const checkEvents = () => {
+      const approveDetails = token.filters.Approval();
+      const canceledEscrowDetails = contract.filters.canceled();
+      const createdEscrowDetails = contract.filters.created();
+      const releasedEscrowDetails = contract.filters.released();
+      const tokenStateDetails = contract.filters.tokenState();
+      const contractStateDetails = contract.filters.contractState();
+      const feeStateDetails = contract.filters.feeState();
+      const filterApprovalState = {
+        address: tokenAddress,
+        topics: [approveDetails.topics[0]],
+      };
+      provider.on(filterApprovalState, (e) => {
+        elements.buyerInfo.value =
+          elements.buyerInfo.value +
+          `New update ${new Date().toISOString()}: token spend approved.\n`;
+      });
+      const filterContractState = {
+        address: contractAddress,
+        topics: [contractStateDetails.topics[0]],
+      };
+      provider.on(filterContractState, (e) => {
+        if (
+          e.data ===
+          "0x0000000000000000000000000000000000000000000000000000000000000001"
+        ) {
+          elements.contractInfo.value =
+            elements.contractInfo.value +
+            `New update ${new Date().toISOString()}: contract has been enabled.\n`;
+        } else {
+          elements.contractInfo.value =
+            elements.contractInfo.value +
+            `New update ${new Date().toISOString()}: contract has been disabled.\n`;
+        }
+      });
+      const filterTokenState = {
+        address: contractAddress,
+        topics: [tokenStateDetails.topics[0]],
+      };
+      provider.on(filterTokenState, (e) => {
+        const data = e.data.slice(2, e.data.length).match(/.{1,64}/gm);
+        const token = `0x${data[0].substr(-40)}`;
+        const enabled =
+          data[1] ===
+          "0000000000000000000000000000000000000000000000000000000000000001";
+        elements.contractInfo.value =
+          elements.contractInfo.value +
+          `New update ${new Date().toISOString()}: token ${token} has been ${
+            enabled === true ? "en" : "dis"
+          }abled.\n`;
+      });
+      const filterFeeState = {
+        address: contractAddress,
+        topics: [feeStateDetails.topics[0]],
+      };
+      provider.on(filterFeeState, (e) => {
+        const fee = parseInt(e.data.slice(-3), 16);
+        elements.contractInfo.value =
+          elements.contractInfo.value +
+          `New update ${new Date().toISOString()}: fee has been changed to ${fee}%.\n`;
+      });
+      const filterCreatedEscrowState = {
+        address: contractAddress,
+        topics: [createdEscrowDetails.topics[0]],
+      };
+      provider.on(filterCreatedEscrowState, (e) => {
+        const data = e.data.slice(2, e.data.length).match(/.{1,64}/gm);
+        const uid = parseInt(data[0], 16);
+        const escrowId = `0x${data[1].substr(-40)}`;
+        const from = `0x${data[2].substr(-40)}`;
+        const recipient = `0x${data[3].substr(-40)}`;
+        const token = `0x${data[4].substr(-40)}`;
+        const amount = parseInt(data[5], 16);
+        escrowData = {
+          escrowId,
+          token,
+          amount: amount.toString(),
+          recipient,
+          owner: from,
+        };
+        elements.buyerInfo.value =
+          elements.buyerInfo.value +
+          `New update ${new Date().toISOString()}: escrow ${escrowId} successfully created for product ${uid} with the amount of ${amount} with token ${token} reserved for ${recipient}.\n`;
+        elements.sellerInfo.value =
+          elements.sellerInfo.value +
+          `New update ${new Date().toISOString()}: escrow ${escrowId} has been reserved for product ${uid} at the amount of ${amount} with the token ${token}.\n`;
+      });
+      const filterReleasedEscrowState = {
+        address: contractAddress,
+        topics: [releasedEscrowDetails.topics[0]],
+      };
+      provider.on(filterReleasedEscrowState, (e) => {
+        elements.buyerInfo.value =
+          elements.buyerInfo.value +
+          `New update ${new Date().toISOString()}: product sold, escrow with id ${
+            escrowData.escrowId
+          } has been released.\n`;
+        elements.sellerInfo.value =
+          elements.sellerInfo.value +
+          `New update ${new Date().toISOString()}: payment received.\n`;
+      });
+      const filterCanceledEscrowState = {
+        address: contractAddress,
+        topics: [canceledEscrowDetails.topics[0]],
+      };
+      provider.on(filterCanceledEscrowState, (e) => {
+        elements.buyerInfo.value =
+          elements.buyerInfo.value +
+          `New update ${new Date().toISOString()}: escrow with id ${
+            escrowData.escrowId
+          } has been canceled, escrow amount returned.\n`;
+      });
+    };
+    checkEvents();
+
+    const createUid = () => {
+      const rand = (Math.random() * 999999999).toString();
+      return parseInt(rand);
+    };
+
+    const parseErrorMessage = (errorRaw) => {
+      try {
+        const error = errorRaw.message
+          .replace(/\n/gm, "")
+          .split('"execution reverted: ')[1]
+          .split('\\",\\"data\\"')[0];
+        return error;
+      } catch (e) {
+        return "Unknown error.";
+      }
+    };
+
+    const approveTokenSpend = () => {
+      if (transactionPending === true) {
+        alert("A transaction is currently pending.");
+        return;
+      }
+      transactionPending = true;
+      const tokenDecimals = 6;
+      elements.buyerInfo.value =
+        elements.buyerInfo.value +
+        `New update ${new Date().toISOString()}: approving token spend for buyer ${
+          buyerWallet.address
+        }.\n`;
+      token
+        .approve(contractAddress, 100 * 10 ** tokenDecimals)
+        .then((r) => {
+          transactionPending = false;
+        })
+        .catch((e) => {
+          const error = parseErrorMessage(e);
+          transactionPending = false;
+          elements.buyerInfo.value =
+            elements.buyerInfo.value +
+            `Error ${new Date().toISOString()}: an error has occured while create approval. ${error}\n`;
+        });
+    };
+
+    const createEscrow = () => {
+      if (productId === undefined) {
+        productId = createUid();
+      }
+      if (transactionPending === true) {
+        alert("A transaction is currently pending.");
+        return;
+      }
+      transactionPending = true;
+      const tokenDecimals = 6;
+      elements.buyerInfo.value =
+        elements.buyerInfo.value +
+        `New update ${new Date().toISOString()}: creating escrow.\n`;
+      contractBuyer
+        .createEscrow(
+          productId,
+          sellerWallet.address,
+          tokenAddress,
+          0.1 * 10 ** tokenDecimals
+        )
+        .then((r) => {
+          transactionPending = false;
+        })
+        .catch((e) => {
+          const error = parseErrorMessage(e);
+          transactionPending = false;
+          elements.buyerInfo.value =
+            elements.buyerInfo.value +
+            `Error ${new Date().toISOString()}: an error has occured while creating escrow. ${error}\n`;
+        });
+    };
+
+    const signSale = async (seller = true) => {
+      const payload = ethers.utils.defaultAbiCoder.encode(
+        ["address", "address", "uint256", "address", "address"],
+        [
+          escrowData.escrowId,
+          escrowData.token,
+          escrowData.amount,
+          escrowData.recipient,
+          escrowData.owner,
+        ]
+      );
+      const escrowMessageHash = ethers.utils.keccak256(payload);
+      const messageHashBinary = ethers.utils.arrayify(escrowMessageHash);
+      if (seller === true) {
+        signedEscrowSeller = await sellerWallet.signMessage(messageHashBinary);
+        elements.sellerInfo.value =
+          elements.sellerInfo.value +
+          `New update ${new Date().toISOString()}: sale signed as seller ${signedEscrowSeller}.\n`;
+        finalizeSale(true);
+        return signedEscrowSeller;
+      }
+      signedEscrowBuyer = await buyerWallet.signMessage(messageHashBinary);
+      elements.buyerInfo.value =
+        elements.buyerInfo.value +
+        `New update ${new Date().toISOString()}: sale signed as buyer ${signedEscrowBuyer}.\n`;
+      finalizeSale();
+      return signedEscrowBuyer;
+    };
+
+    const finalizeSale = (asSeller = false) => {
+      if (signedEscrowBuyer === undefined || signedEscrowSeller === undefined) {
+        return;
+      }
+      if (transactionPending === true) {
+        alert("A transaction is currently pending.");
+        return;
+      }
+      transactionPending = true;
+      if (asSeller === true) {
+        elements.sellerInfo.value =
+          elements.sellerInfo.value +
+          `New update ${new Date().toISOString()}: finalizing sale.\n`;
+      } else {
+        elements.buyerInfo.value =
+          elements.buyerInfo.value +
+          `New update ${new Date().toISOString()}: finalizing sale.\n`;
+      }
+      (asSeller === true ? contractSeller : contractBuyer)
+        .releaseEscrow(
+          escrowData.escrowId,
+          signedEscrowBuyer,
+          signedEscrowSeller
+        )
+        .then((r) => {
+          transactionPending = false;
+        })
+        .catch((e) => {
+          const error = parseErrorMessage(e);
+          transactionPending = false;
+          elements.buyerInfo.value =
+            elements.buyerInfo.value +
+            `Error ${new Date().toISOString()}: an error has occured while finalizing sale. ${error}\n`;
+        });
+    };
+
+    const cancelPurchase = () => {
+      if (transactionPending === true) {
+        alert("A transaction is currently pending.");
+        return;
+      }
+      transactionPending = true;
+      elements.buyerInfo.value =
+        elements.buyerInfo.value +
+        `New update ${new Date().toISOString()}: canceling escrow.\n`;
+      contractBuyer
+        .cancelEscrow(escrowData.escrowId)
+        .then((r) => {
+          transactionPending = false;
+        })
+        .catch((e) => {
+          const error = parseErrorMessage(e);
+          transactionPending = false;
+          elements.buyerInfo.value =
+            elements.buyerInfo.value +
+            `Error ${new Date().toISOString()}: an error has occured while canceling escrow. ${error}\n`;
+        });
+    };
+
+    const enableContract = () => {
+      if (transactionPending === true) {
+        alert("A transaction is currently pending.");
+        return;
+      }
+      transactionPending = true;
+      elements.contractInfo.value =
+        elements.contractInfo.value +
+        `New update ${new Date().toISOString()}: enable contract transaction invoked.\n`;
+      contract
+        .enable()
+        .then((r) => {
+          transactionPending = false;
+        })
+        .catch((e) => {
+          const error = parseErrorMessage(e);
+          transactionPending = false;
+          elements.contractInfo.value =
+            elements.contractInfo.value +
+            `Error ${new Date().toISOString()}: an error has occured while enabling the contract. ${error}\n`;
+        });
+    };
+
+    const disableContract = () => {
+      if (transactionPending === true) {
+        alert("A transaction is currently pending.");
+        return;
+      }
+      transactionPending = true;
+      elements.contractInfo.value =
+        elements.contractInfo.value +
+        `New update ${new Date().toISOString()}: disable contract transaction invoked.\n`;
+      contract
+        .disable()
+        .then((r) => {
+          transactionPending = false;
+        })
+        .catch((e) => {
+          const error = parseErrorMessage(e);
+          transactionPending = false;
+          elements.contractInfo.value =
+            elements.contractInfo.value +
+            `Error ${new Date().toISOString()}: an error has occured while disabling the contract. ${error}\n`;
+        });
+    };
+
+    const changeFee = (fee) => {
+      if (transactionPending === true) {
+        alert("A transaction is currently pending.");
+        return;
+      }
+      transactionPending = true;
+      elements.contractInfo.value =
+        elements.contractInfo.value +
+        `New update ${new Date().toISOString()}: fee change transaction invoked.\n`;
+      contract
+        .changeFee(fee)
+        .then((r) => {
+          transactionPending = false;
+        })
+        .catch((e) => {
+          const error = parseErrorMessage(e);
+          transactionPending = false;
+          elements.contractInfo.value =
+            elements.contractInfo.value +
+            `Error ${new Date().toISOString()}: an error has occured while changing fee. ${error}\n`;
+        });
+    };
+
+    const addToken = (tokenAddress) => {
+      if (transactionPending === true) {
+        alert("A transaction is currently pending.");
+        return;
+      }
+      transactionPending = true;
+      elements.contractInfo.value =
+        elements.contractInfo.value +
+        `New update ${new Date().toISOString()}: enable token transaction invoked.\n`;
+      contract
+        .enableToken(tokenAddress)
+        .then((r) => {
+          transactionPending = false;
+        })
+        .catch((e) => {
+          const error = parseErrorMessage(e);
+          transactionPending = false;
+          elements.contractInfo.value =
+            elements.contractInfo.value +
+            `Error ${new Date().toISOString()}: an error has occured while enabling token. ${error}\n`;
+        });
+    };
+
+    const removeToken = (tokenAddress) => {
+      if (transactionPending === true) {
+        alert("A transaction is currently pending.");
+        return;
+      }
+      transactionPending = true;
+      elements.contractInfo.value =
+        elements.contractInfo.value +
+        `New update ${new Date().toISOString()}: disable token transaction invoked.\n`;
+      contract
+        .disableToken(tokenAddress)
+        .then((r) => {
+          transactionPending = false;
+        })
+        .catch((e) => {
+          const error = parseErrorMessage(e);
+          transactionPending = false;
+          elements.contractInfo.value =
+            elements.contractInfo.value +
+            `Error ${new Date().toISOString()}: an error has occured while disabling token. ${error}\n`;
+        });
+    };
+
+    const checkEscrowDetails = (escrowId) => {
+      elements.contractInfo.value =
+        elements.contractInfo.value +
+        `New update ${new Date().toISOString()}: checking escrow details.\n`;
+      contract
+        .getEscrowDetails(escrowId)
+        .then((r) => {
+          elements.contractInfo.value =
+            elements.contractInfo.value +
+            `Escrow Details:\n\ncanceled: ${r.canceled}\n\nescrowId: ${r.escrowId}\n\nowner: ${r.owner}\n\nrecipient: ${r.recipient}\n\nreleased: ${r.released}\n\ntoken: ${r.token}\n`;
+        })
+        .catch((e) => {
+          elements.contractInfo.value =
+            elements.contractInfo.value +
+            `Error ${new Date().toISOString()}: an error has occured while checking escrow details for ${escrowId}\n`;
+        });
+    };
+  </script>
+</html>
