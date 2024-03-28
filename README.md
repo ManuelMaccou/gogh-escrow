@@ -11,17 +11,17 @@ A horizontally scalable server application for Gogh backend infrastructure.
 Install Node 18.18 LTS by running:
 
 ```
-  brew install node@18
+brew install node@18
 ```
 
 ## Mongo DB
 
-# Mac Installation
+Mac Installation
 
 ```
-    brew tap mongodb/brew
-    brew update
-    brew install mongodb-community@7.0
+brew tap mongodb/brew
+brew update
+brew install mongodb-community@7.0
 ```
 
 # Create Administrator
@@ -29,7 +29,8 @@ Install Node 18.18 LTS by running:
 To create an administrator, follow the instructions below:
 
 Open mongo:
-`mongo`
+
+`mongosh`
 
 Create the administrative user:
 
@@ -62,28 +63,28 @@ sudo systemctl restart mongod
 ## ENV File
 
 ```
-  # Core credentials
-  BASE_ALCHEMY_API=https://base-sepolia.g.alchemy.com/v2/DO8BiTTs-jCAUSojKnkVZfNXmFmxxE-e
-  GOGH_CONTRACT_ADDRESS=0x90140170b6be646097364fe163e319d5242622fa
-  ATTESTATION_ATTESTATOR_PRIVATE_KEY=<Attestator private key NOT the gogh contract administrator wallet>
-  ATTESTATION_REGISTRY_ID=<Attestator schema address>
+# Core credentials
+BASE_ALCHEMY_API=https://base-sepolia.g.alchemy.com/v2/DO8BiTTs-jCAUSojKnkVZfNXmFmxxE-e
+GOGH_CONTRACT_ADDRESS=0x90140170b6be646097364fe163e319d5242622fa
+ATTESTATION_ATTESTATOR_PRIVATE_KEY=<Attestator private key NOT the gogh contract administrator wallet>
+ATTESTATION_REGISTRY_ID=<Attestator schema address>
 
-  # Datbase credentials
-  MASTER_SQL_DB_NAME=gogh
-  MASTER_SQL_USER=gogh
-  MASTER_SQL_IP=127.0.0.1
-  MASTER_SQL_PORT=27017
-  MASTER_SQL_PASSWORD=<Mongo DB password>
+# Datbase credentials
+MASTER_SQL_DB_NAME=gogh
+MASTER_SQL_USER=gogh
+MASTER_SQL_IP=127.0.0.1
+MASTER_SQL_PORT=27017
+MASTER_SQL_PASSWORD=<Mongo DB password>
 
-  # SSL (if available), SSL files must go to /ssl
-  ENABLE_SSL=0
-  SSL_KEY=ssl.key
-  SSL_CRT=ssl.crt
-  SSL_CA=ssl.ca.crt
+# SSL (if available), SSL files must go to /ssl
+ENABLE_SSL=0
+SSL_KEY=ssl.key
+SSL_CRT=ssl.crt
+SSL_CA=ssl.ca.crt
 
-  # Server configurations (change port to 443 on production)
-  ENABLE_SSL=0
-  PORT=42069
+# Server configurations (change port to 443 on production)
+ENABLE_SSL=0
+PORT=42069
 ```
 
 ## Install Packages
@@ -91,7 +92,7 @@ sudo systemctl restart mongod
 Perform package installation by running:
 
 ```
-  npm install
+npm install
 ```
 
 ## Run Oracle
@@ -99,7 +100,7 @@ Perform package installation by running:
 The Oracle keeps track of events (sales) on-chain and updates the local database.
 
 ```
-  npm run run:oracle
+npm run run:oracle
 ```
 
 ## Run Server
@@ -107,47 +108,45 @@ The Oracle keeps track of events (sales) on-chain and updates the local database
 The Server acceps REST API requests from the public and updates the local database.
 
 ```
-  npm run run:server
+npm run run:server
 ```
 
 ## Server API Endpoints
 
 Below are the list of API endpoints accessible in the server.
 
-# GET - /get_escrow_details/:escrow_id
-
-# Returns 200, 400/404 on error/not-found on success with escrow data:
+`GET` - `/get_escrow_details/:escrow_id`
+`Returns 200, 400/404` on error/not-found on success with escrow data:
 
 ```
-  {
-    uid: Product UID - number
-    escrowId: Escrow ID - address,
-    token: Token used - address,
-    owner: Buyer's wallet address,
-    amount: Amount of escrow - number,
-    seller: Seller's wallet address,
-    released: If the escrow has been released - boolean,
-    canceled: If the escrow has been canceled - boolean,
-    buyerSignature: The buyer's signature if signed,
-    sellerSignature: The seller's signature if signed,
-    releaseTxHash: The release transaction hash on base chain,
-    cancelTxHash: The cancelation transaction has on base chain,
+{
+  uid: Product UID - number
+  escrowId: Escrow ID - address,
+  token: Token used - address,
+  owner: Buyer's wallet address,
+  amount: Amount of escrow - number,
+  seller: Seller's wallet address,
+  released: If the escrow has been released - boolean,
+  canceled: If the escrow has been canceled - boolean,
+  buyerSignature: The buyer's signature if signed,
+  sellerSignature: The seller's signature if signed,
+  releaseTxHash: The release transaction hash on base chain,
+  cancelTxHash: The cancelation transaction has on base chain,
+}
+```
+
+`POST` - `/sign_purchase` - body required:
+`Returns 200, 400/404` on error/not-found on success
+
+```
+{
+  signature: signed signature - string
+  unsignedData: {
+    escrowId: The escrow ID - address,
+    token: The token address - address,
+    amount: The escrow amount - number,
+    recipient: The escrow recipient - address,
+    owner: The escrow creator (buyer) - address,
   }
+}
 ```
-
-# POST - /sign_purchase - body required:
-
-```
-  {
-    signature: signed signature - string
-    unsignedData: {
-      escrowId: The escrow ID - address,
-      token: The token address - address,
-      amount: The escrow amount - number,
-      recipient: The escrow recipient - address,
-      owner: The escrow creator (buyer) - address,
-    }
-  }
-```
-
-# Returns 200, 400/404 on error/not-found on success
