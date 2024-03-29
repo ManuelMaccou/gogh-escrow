@@ -1,4 +1,4 @@
-html>
+<html>
   <head>
     <script
       src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"
@@ -123,7 +123,7 @@ html>
         "
       >
         <h1>Buyer View</h1>
-        <h2>Buy item: Shoes - 0.1 USDC</h2>
+        <h2>Shoes - 0.1 USDC</h2>
         <div style="width: 100%">
           Info.
           <br />
@@ -143,7 +143,8 @@ html>
         </div>
         <button onClick="approveTokenSpend()">1. Approve Token Spend</button>
         <button onClick="createEscrow()">2. Send intent to Buy Item</button>
-        <button onClick="signSale(false)">Complete Purchase</button>
+        <button onClick="signSale(false)">Sign Sale</button>
+        <button onClick="releaseEscrow(false)">Release Escrow</button>
         <button onClick="cancelPurchase()">Cancel Purchase</button>
       </div>
       <div
@@ -177,7 +178,173 @@ html>
             readonly
           ></textarea>
         </div>
-        <button onClick="signSale()">Approve Sale (Sign signature)</button>
+        <button onClick="signSale()">Sign Sale</button>
+        <button onClick="releaseEscrow(true)">Claim Escrow</button>
+      </div>
+      <div
+        style="
+          flex: 1;
+          border: solid 1px gray;
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          padding: 20px;
+          border-radius: 10px;
+          text-align: center;
+        "
+      >
+        <h1>Live Progress</h1>
+        <h2>-</h2>
+        <div
+          style="
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-top: 30px;
+          "
+        >
+          <div
+            id="created-escrow"
+            style="
+              display: flex;
+              flex-direction: row;
+              align-items: center;
+              justify-content: flex-start;
+              gap: 20px;
+              filter: grayscale();
+            "
+          >
+            <div
+              style="
+                display: flex;
+                flex: 0 0 auto;
+                width: 30px;
+                height: 30px;
+                background-color: limegreen;
+                border-radius: 60px;
+                align-items: center;
+                justify-content: center;
+                color: white;
+              "
+            >
+              &check;
+            </div>
+            <span>Escrow Created</span>
+          </div>
+          <div
+            id="signed-seller"
+            style="
+              display: flex;
+              flex-direction: row;
+              align-items: center;
+              justify-content: flex-start;
+              gap: 20px;
+              filter: grayscale();
+            "
+          >
+            <div
+              style="
+                display: flex;
+                flex: 0 0 auto;
+                width: 30px;
+                height: 30px;
+                background-color: limegreen;
+                border-radius: 60px;
+                align-items: center;
+                justify-content: center;
+                color: white;
+              "
+            >
+              &check;
+            </div>
+            <span>Seller Signed</span>
+          </div>
+          <div
+            id="signed-buyer"
+            style="
+              display: flex;
+              flex-direction: row;
+              align-items: center;
+              justify-content: flex-start;
+              gap: 20px;
+              filter: grayscale();
+            "
+          >
+            <div
+              style="
+                display: flex;
+                flex: 0 0 auto;
+                width: 30px;
+                height: 30px;
+                background-color: limegreen;
+                border-radius: 60px;
+                align-items: center;
+                justify-content: center;
+                color: white;
+              "
+            >
+              &check;
+            </div>
+            <span>Buyer Signed</span>
+          </div>
+          <div
+            id="released-escrow"
+            style="
+              display: flex;
+              flex-direction: row;
+              align-items: center;
+              justify-content: flex-start;
+              gap: 20px;
+              filter: grayscale();
+            "
+          >
+            <div
+              style="
+                display: flex;
+                flex: 0 0 auto;
+                width: 30px;
+                height: 30px;
+                background-color: limegreen;
+                border-radius: 60px;
+                align-items: center;
+                justify-content: center;
+                color: white;
+              "
+            >
+              &check;
+            </div>
+            <span>Escrow Released</span>
+          </div>
+          <div
+            id="attestation-created"
+            style="
+              display: flex;
+              flex-direction: row;
+              align-items: center;
+              justify-content: flex-start;
+              gap: 20px;
+              filter: grayscale();
+            "
+          >
+            <div
+              style="
+                display: flex;
+                flex: 0 0 auto;
+                width: 30px;
+                height: 30px;
+                background-color: limegreen;
+                border-radius: 60px;
+                align-items: center;
+                justify-content: center;
+                color: white;
+              "
+            >
+              &check;
+            </div>
+            <span>Attestation Created</span>
+          </div>
+        </div>
       </div>
       <div
         style="
@@ -264,626 +431,626 @@ html>
     const contractAddress = "0xca683274e1bcf90de6edc59b0a5f55814c438c22";
     const contractABI = [
       {
-        "anonymous": false,
-        "inputs": [
+        anonymous: false,
+        inputs: [
           {
-            "indexed": false,
-            "internalType": "address",
-            "name": "_beneficiary",
-            "type": "address"
-          }
+            indexed: false,
+            internalType: "address",
+            name: "_beneficiary",
+            type: "address",
+          },
         ],
-        "name": "beneficiaryState",
-        "type": "event"
+        name: "beneficiaryState",
+        type: "event",
       },
       {
-        "anonymous": false,
-        "inputs": [
+        anonymous: false,
+        inputs: [
           {
-            "indexed": false,
-            "internalType": "address",
-            "name": "_escrowId",
-            "type": "address"
+            indexed: false,
+            internalType: "address",
+            name: "_escrowId",
+            type: "address",
           },
           {
-            "indexed": false,
-            "internalType": "address",
-            "name": "_owner",
-            "type": "address"
+            indexed: false,
+            internalType: "address",
+            name: "_owner",
+            type: "address",
           },
           {
-            "indexed": false,
-            "internalType": "address",
-            "name": "_recipient",
-            "type": "address"
+            indexed: false,
+            internalType: "address",
+            name: "_recipient",
+            type: "address",
           },
           {
-            "indexed": false,
-            "internalType": "uint256",
-            "name": "_amount",
-            "type": "uint256"
-          }
+            indexed: false,
+            internalType: "uint256",
+            name: "_amount",
+            type: "uint256",
+          },
         ],
-        "name": "canceled",
-        "type": "event"
+        name: "canceled",
+        type: "event",
       },
       {
-        "anonymous": false,
-        "inputs": [
+        anonymous: false,
+        inputs: [
           {
-            "indexed": false,
-            "internalType": "bool",
-            "name": "_enabled",
-            "type": "bool"
-          }
+            indexed: false,
+            internalType: "bool",
+            name: "_enabled",
+            type: "bool",
+          },
         ],
-        "name": "contractState",
-        "type": "event"
+        name: "contractState",
+        type: "event",
       },
       {
-        "anonymous": false,
-        "inputs": [
+        anonymous: false,
+        inputs: [
           {
-            "indexed": false,
-            "internalType": "uint256",
-            "name": "_uid",
-            "type": "uint256"
+            indexed: false,
+            internalType: "uint256",
+            name: "_uid",
+            type: "uint256",
           },
           {
-            "indexed": false,
-            "internalType": "address",
-            "name": "_escrowId",
-            "type": "address"
+            indexed: false,
+            internalType: "address",
+            name: "_escrowId",
+            type: "address",
           },
           {
-            "indexed": false,
-            "internalType": "address",
-            "name": "_owner",
-            "type": "address"
+            indexed: false,
+            internalType: "address",
+            name: "_owner",
+            type: "address",
           },
           {
-            "indexed": false,
-            "internalType": "address",
-            "name": "_recipient",
-            "type": "address"
+            indexed: false,
+            internalType: "address",
+            name: "_recipient",
+            type: "address",
           },
           {
-            "indexed": false,
-            "internalType": "address",
-            "name": "_token",
-            "type": "address"
+            indexed: false,
+            internalType: "address",
+            name: "_token",
+            type: "address",
           },
           {
-            "indexed": false,
-            "internalType": "uint256",
-            "name": "_amount",
-            "type": "uint256"
-          }
+            indexed: false,
+            internalType: "uint256",
+            name: "_amount",
+            type: "uint256",
+          },
         ],
-        "name": "created",
-        "type": "event"
+        name: "created",
+        type: "event",
       },
       {
-        "anonymous": false,
-        "inputs": [
+        anonymous: false,
+        inputs: [
           {
-            "indexed": false,
-            "internalType": "address",
-            "name": "_client",
-            "type": "address"
+            indexed: false,
+            internalType: "address",
+            name: "_client",
+            type: "address",
           },
           {
-            "indexed": false,
-            "internalType": "uint256",
-            "name": "_amount",
-            "type": "uint256"
-          }
+            indexed: false,
+            internalType: "uint256",
+            name: "_amount",
+            type: "uint256",
+          },
         ],
-        "name": "depositDetails",
-        "type": "event"
+        name: "depositDetails",
+        type: "event",
       },
       {
-        "anonymous": false,
-        "inputs": [
+        anonymous: false,
+        inputs: [
           {
-            "indexed": false,
-            "internalType": "address",
-            "name": "_token",
-            "type": "address"
+            indexed: false,
+            internalType: "address",
+            name: "_token",
+            type: "address",
           },
           {
-            "indexed": false,
-            "internalType": "uint256",
-            "name": "_amount",
-            "type": "uint256"
-          }
+            indexed: false,
+            internalType: "uint256",
+            name: "_amount",
+            type: "uint256",
+          },
         ],
-        "name": "emergencyWithdrawDetails",
-        "type": "event"
+        name: "emergencyWithdrawDetails",
+        type: "event",
       },
       {
-        "anonymous": false,
-        "inputs": [
+        anonymous: false,
+        inputs: [
           {
-            "indexed": false,
-            "internalType": "uint256",
-            "name": "_fee",
-            "type": "uint256"
-          }
+            indexed: false,
+            internalType: "uint256",
+            name: "_fee",
+            type: "uint256",
+          },
         ],
-        "name": "feeState",
-        "type": "event"
+        name: "feeState",
+        type: "event",
       },
       {
-        "anonymous": false,
-        "inputs": [
+        anonymous: false,
+        inputs: [
           {
-            "indexed": false,
-            "internalType": "address",
-            "name": "_admin",
-            "type": "address"
-          }
+            indexed: false,
+            internalType: "address",
+            name: "_admin",
+            type: "address",
+          },
         ],
-        "name": "ownership",
-        "type": "event"
+        name: "ownership",
+        type: "event",
       },
       {
-        "anonymous": false,
-        "inputs": [
+        anonymous: false,
+        inputs: [
           {
-            "indexed": false,
-            "internalType": "address",
-            "name": "_escrowId",
-            "type": "address"
+            indexed: false,
+            internalType: "address",
+            name: "_escrowId",
+            type: "address",
           },
           {
-            "indexed": false,
-            "internalType": "address",
-            "name": "_owner",
-            "type": "address"
+            indexed: false,
+            internalType: "address",
+            name: "_owner",
+            type: "address",
           },
           {
-            "indexed": false,
-            "internalType": "address",
-            "name": "_recipient",
-            "type": "address"
+            indexed: false,
+            internalType: "address",
+            name: "_recipient",
+            type: "address",
           },
           {
-            "indexed": false,
-            "internalType": "uint256",
-            "name": "_amount",
-            "type": "uint256"
+            indexed: false,
+            internalType: "uint256",
+            name: "_amount",
+            type: "uint256",
           },
           {
-            "indexed": false,
-            "internalType": "address",
-            "name": "_token",
-            "type": "address"
+            indexed: false,
+            internalType: "address",
+            name: "_token",
+            type: "address",
           },
           {
-            "indexed": false,
-            "internalType": "bytes",
-            "name": "_ownerSignature",
-            "type": "bytes"
+            indexed: false,
+            internalType: "bytes",
+            name: "_ownerSignature",
+            type: "bytes",
           },
           {
-            "indexed": false,
-            "internalType": "bytes",
-            "name": "_recipientSignature",
-            "type": "bytes"
-          }
+            indexed: false,
+            internalType: "bytes",
+            name: "_recipientSignature",
+            type: "bytes",
+          },
         ],
-        "name": "released",
-        "type": "event"
+        name: "released",
+        type: "event",
       },
       {
-        "anonymous": false,
-        "inputs": [
+        anonymous: false,
+        inputs: [
           {
-            "indexed": false,
-            "internalType": "address",
-            "name": "_token",
-            "type": "address"
+            indexed: false,
+            internalType: "address",
+            name: "_token",
+            type: "address",
           },
           {
-            "indexed": false,
-            "internalType": "bool",
-            "name": "_enabled",
-            "type": "bool"
-          }
+            indexed: false,
+            internalType: "bool",
+            name: "_enabled",
+            type: "bool",
+          },
         ],
-        "name": "tokenState",
-        "type": "event"
+        name: "tokenState",
+        type: "event",
       },
       {
-        "anonymous": false,
-        "inputs": [
+        anonymous: false,
+        inputs: [
           {
-            "indexed": false,
-            "internalType": "address",
-            "name": "_client",
-            "type": "address"
+            indexed: false,
+            internalType: "address",
+            name: "_client",
+            type: "address",
           },
           {
-            "indexed": false,
-            "internalType": "uint256",
-            "name": "_amount",
-            "type": "uint256"
-          }
+            indexed: false,
+            internalType: "uint256",
+            name: "_amount",
+            type: "uint256",
+          },
         ],
-        "name": "withdrawDetails",
-        "type": "event"
+        name: "withdrawDetails",
+        type: "event",
       },
       {
-        "inputs": [
+        inputs: [
           {
-            "internalType": "address",
-            "name": "_escrowId",
-            "type": "address"
-          }
+            internalType: "address",
+            name: "_escrowId",
+            type: "address",
+          },
         ],
-        "name": "cancelEscrow",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
+        name: "cancelEscrow",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
       },
       {
-        "inputs": [
+        inputs: [
           {
-            "internalType": "uint256",
-            "name": "_fee",
-            "type": "uint256"
-          }
+            internalType: "uint256",
+            name: "_fee",
+            type: "uint256",
+          },
         ],
-        "name": "changeFee",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
+        name: "changeFee",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
       },
       {
-        "inputs": [
+        inputs: [
           {
-            "internalType": "uint256",
-            "name": "_uid",
-            "type": "uint256"
+            internalType: "uint256",
+            name: "_uid",
+            type: "uint256",
           },
           {
-            "internalType": "address",
-            "name": "_recipient",
-            "type": "address"
+            internalType: "address",
+            name: "_recipient",
+            type: "address",
           },
           {
-            "internalType": "address",
-            "name": "_token",
-            "type": "address"
+            internalType: "address",
+            name: "_token",
+            type: "address",
           },
           {
-            "internalType": "uint256",
-            "name": "_amount",
-            "type": "uint256"
-          }
+            internalType: "uint256",
+            name: "_amount",
+            type: "uint256",
+          },
         ],
-        "name": "createEscrow",
-        "outputs": [],
-        "stateMutability": "payable",
-        "type": "function"
+        name: "createEscrow",
+        outputs: [],
+        stateMutability: "payable",
+        type: "function",
       },
       {
-        "inputs": [],
-        "name": "disable",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
+        inputs: [],
+        name: "disable",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
       },
       {
-        "inputs": [
+        inputs: [
           {
-            "internalType": "address",
-            "name": "_token",
-            "type": "address"
-          }
+            internalType: "address",
+            name: "_token",
+            type: "address",
+          },
         ],
-        "name": "disableToken",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
+        name: "disableToken",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
       },
       {
-        "inputs": [
+        inputs: [
           {
-            "internalType": "address",
-            "name": "_token",
-            "type": "address"
-          }
+            internalType: "address",
+            name: "_token",
+            type: "address",
+          },
         ],
-        "name": "emergencyWithdraw",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
+        name: "emergencyWithdraw",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
       },
       {
-        "inputs": [],
-        "name": "enable",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
+        inputs: [],
+        name: "enable",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
       },
       {
-        "inputs": [
+        inputs: [
           {
-            "internalType": "address",
-            "name": "_token",
-            "type": "address"
-          }
+            internalType: "address",
+            name: "_token",
+            type: "address",
+          },
         ],
-        "name": "enableToken",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
+        name: "enableToken",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
       },
       {
-        "inputs": [
+        inputs: [
           {
-            "internalType": "address",
-            "name": "_escrowId",
-            "type": "address"
+            internalType: "address",
+            name: "_escrowId",
+            type: "address",
           },
           {
-            "internalType": "bytes",
-            "name": "_ownerSignature",
-            "type": "bytes"
+            internalType: "bytes",
+            name: "_ownerSignature",
+            type: "bytes",
           },
           {
-            "internalType": "bytes",
-            "name": "_recipientSignature",
-            "type": "bytes"
-          }
+            internalType: "bytes",
+            name: "_recipientSignature",
+            type: "bytes",
+          },
         ],
-        "name": "releaseEscrow",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
+        name: "releaseEscrow",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
       },
       {
-        "inputs": [
+        inputs: [
           {
-            "internalType": "address",
-            "name": "_beneficiary",
-            "type": "address"
-          }
+            internalType: "address",
+            name: "_beneficiary",
+            type: "address",
+          },
         ],
-        "name": "setBeneficiary",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
+        name: "setBeneficiary",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
       },
       {
-        "inputs": [
+        inputs: [
           {
-            "internalType": "address",
-            "name": "_admin",
-            "type": "address"
-          }
+            internalType: "address",
+            name: "_admin",
+            type: "address",
+          },
         ],
-        "name": "transferOwner",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
+        name: "transferOwner",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
       },
       {
-        "inputs": [],
-        "stateMutability": "payable",
-        "type": "constructor"
+        inputs: [],
+        stateMutability: "payable",
+        type: "constructor",
       },
       {
-        "inputs": [
+        inputs: [
           {
-            "internalType": "address",
-            "name": "_token",
-            "type": "address"
+            internalType: "address",
+            name: "_token",
+            type: "address",
           },
           {
-            "internalType": "address",
-            "name": "_client",
-            "type": "address"
-          }
+            internalType: "address",
+            name: "_client",
+            type: "address",
+          },
         ],
-        "name": "getBalance",
-        "outputs": [
+        name: "getBalance",
+        outputs: [
           {
-            "internalType": "uint256",
-            "name": "",
-            "type": "uint256"
-          }
+            internalType: "uint256",
+            name: "",
+            type: "uint256",
+          },
         ],
-        "stateMutability": "view",
-        "type": "function"
+        stateMutability: "view",
+        type: "function",
       },
       {
-        "inputs": [
+        inputs: [
           {
-            "internalType": "address",
-            "name": "_escrowId",
-            "type": "address"
-          }
+            internalType: "address",
+            name: "_escrowId",
+            type: "address",
+          },
         ],
-        "name": "getEscrowDetails",
-        "outputs": [
+        name: "getEscrowDetails",
+        outputs: [
           {
-            "components": [
+            components: [
               {
-                "internalType": "uint256",
-                "name": "uid",
-                "type": "uint256"
+                internalType: "uint256",
+                name: "uid",
+                type: "uint256",
               },
               {
-                "internalType": "address",
-                "name": "escrowId",
-                "type": "address"
+                internalType: "address",
+                name: "escrowId",
+                type: "address",
               },
               {
-                "internalType": "address",
-                "name": "token",
-                "type": "address"
+                internalType: "address",
+                name: "token",
+                type: "address",
               },
               {
-                "internalType": "uint256",
-                "name": "amount",
-                "type": "uint256"
+                internalType: "uint256",
+                name: "amount",
+                type: "uint256",
               },
               {
-                "internalType": "address",
-                "name": "recipient",
-                "type": "address"
+                internalType: "address",
+                name: "recipient",
+                type: "address",
               },
               {
-                "internalType": "address",
-                "name": "owner",
-                "type": "address"
+                internalType: "address",
+                name: "owner",
+                type: "address",
               },
               {
-                "internalType": "bool",
-                "name": "released",
-                "type": "bool"
+                internalType: "bool",
+                name: "released",
+                type: "bool",
               },
               {
-                "internalType": "bool",
-                "name": "canceled",
-                "type": "bool"
-              }
+                internalType: "bool",
+                name: "canceled",
+                type: "bool",
+              },
             ],
-            "internalType": "struct Escrow",
-            "name": "",
-            "type": "tuple"
-          }
+            internalType: "struct Escrow",
+            name: "",
+            type: "tuple",
+          },
         ],
-        "stateMutability": "view",
-        "type": "function"
+        stateMutability: "view",
+        type: "function",
       },
       {
-        "inputs": [
+        inputs: [
           {
-            "internalType": "bytes32",
-            "name": "_ethSignedMessageHash",
-            "type": "bytes32"
+            internalType: "bytes32",
+            name: "_ethSignedMessageHash",
+            type: "bytes32",
           },
           {
-            "internalType": "bytes",
-            "name": "_signature",
-            "type": "bytes"
-          }
+            internalType: "bytes",
+            name: "_signature",
+            type: "bytes",
+          },
         ],
-        "name": "recoverSigner",
-        "outputs": [
+        name: "recoverSigner",
+        outputs: [
           {
-            "internalType": "address",
-            "name": "",
-            "type": "address"
-          }
+            internalType: "address",
+            name: "",
+            type: "address",
+          },
         ],
-        "stateMutability": "pure",
-        "type": "function"
+        stateMutability: "pure",
+        type: "function",
       },
       {
-        "inputs": [
+        inputs: [
           {
-            "internalType": "bytes",
-            "name": "sig",
-            "type": "bytes"
-          }
+            internalType: "bytes",
+            name: "sig",
+            type: "bytes",
+          },
         ],
-        "name": "splitSignature",
-        "outputs": [
+        name: "splitSignature",
+        outputs: [
           {
-            "internalType": "bytes32",
-            "name": "r",
-            "type": "bytes32"
+            internalType: "bytes32",
+            name: "r",
+            type: "bytes32",
           },
           {
-            "internalType": "bytes32",
-            "name": "s",
-            "type": "bytes32"
+            internalType: "bytes32",
+            name: "s",
+            type: "bytes32",
           },
           {
-            "internalType": "uint8",
-            "name": "v",
-            "type": "uint8"
-          }
+            internalType: "uint8",
+            name: "v",
+            type: "uint8",
+          },
         ],
-        "stateMutability": "pure",
-        "type": "function"
+        stateMutability: "pure",
+        type: "function",
       },
       {
-        "inputs": [
+        inputs: [
           {
-            "components": [
+            components: [
               {
-                "internalType": "uint256",
-                "name": "uid",
-                "type": "uint256"
+                internalType: "uint256",
+                name: "uid",
+                type: "uint256",
               },
               {
-                "internalType": "address",
-                "name": "escrowId",
-                "type": "address"
+                internalType: "address",
+                name: "escrowId",
+                type: "address",
               },
               {
-                "internalType": "address",
-                "name": "token",
-                "type": "address"
+                internalType: "address",
+                name: "token",
+                type: "address",
               },
               {
-                "internalType": "uint256",
-                "name": "amount",
-                "type": "uint256"
+                internalType: "uint256",
+                name: "amount",
+                type: "uint256",
               },
               {
-                "internalType": "address",
-                "name": "recipient",
-                "type": "address"
+                internalType: "address",
+                name: "recipient",
+                type: "address",
               },
               {
-                "internalType": "address",
-                "name": "owner",
-                "type": "address"
+                internalType: "address",
+                name: "owner",
+                type: "address",
               },
               {
-                "internalType": "bool",
-                "name": "released",
-                "type": "bool"
+                internalType: "bool",
+                name: "released",
+                type: "bool",
               },
               {
-                "internalType": "bool",
-                "name": "canceled",
-                "type": "bool"
-              }
+                internalType: "bool",
+                name: "canceled",
+                type: "bool",
+              },
             ],
-            "internalType": "struct Escrow",
-            "name": "_escrowData",
-            "type": "tuple"
+            internalType: "struct Escrow",
+            name: "_escrowData",
+            type: "tuple",
           },
           {
-            "internalType": "bytes",
-            "name": "_ownerSignature",
-            "type": "bytes"
+            internalType: "bytes",
+            name: "_ownerSignature",
+            type: "bytes",
           },
           {
-            "internalType": "bytes",
-            "name": "_recipientSignature",
-            "type": "bytes"
-          }
+            internalType: "bytes",
+            name: "_recipientSignature",
+            type: "bytes",
+          },
         ],
-        "name": "validateSignatures",
-        "outputs": [
+        name: "validateSignatures",
+        outputs: [
           {
-            "internalType": "bool",
-            "name": "",
-            "type": "bool"
-          }
+            internalType: "bool",
+            name: "",
+            type: "bool",
+          },
         ],
-        "stateMutability": "pure",
-        "type": "function"
-      }
+        stateMutability: "pure",
+        type: "function",
+      },
     ];
     const tokenABI = [
       {
@@ -1086,6 +1253,7 @@ html>
       contractABI,
       sellerWallet
     );
+    const apiUrl = "http://207.246.106.197";
     let transactionPending = false;
     let productId;
     let escrowData;
@@ -1282,6 +1450,36 @@ html>
         });
     };
 
+    const saveSignature = (signature, escrow) => {
+      console.log(signature, escrow);
+      fetch(apiUrl + "/sign_purchase", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          signature,
+          unsignedData: {
+            escrowId: escrow.escrowId,
+            token: escrow.token,
+            amount: escrow.amount,
+            recipient: escrow.recipient,
+            owner: escrow.owner,
+          },
+        }),
+      })
+        .then(async (r) => {
+          if (r.status !== 200) {
+            const error = await r.text();
+            throw error;
+          }
+          alert("Success: signature saved to server.");
+        })
+        .catch((e) => {
+          alert("Error saving signature to server: " + e);
+        });
+    };
+
     const signSale = async (seller = true) => {
       const payload = ethers.utils.defaultAbiCoder.encode(
         ["address", "address", "uint256", "address", "address"],
@@ -1300,21 +1498,18 @@ html>
         elements.sellerInfo.value =
           elements.sellerInfo.value +
           `New update ${new Date().toISOString()}: sale signed as seller ${signedEscrowSeller}.\n`;
-        finalizeSale(true);
+        saveSignature(signedEscrowSeller, escrowData);
         return signedEscrowSeller;
       }
       signedEscrowBuyer = await buyerWallet.signMessage(messageHashBinary);
       elements.buyerInfo.value =
         elements.buyerInfo.value +
         `New update ${new Date().toISOString()}: sale signed as buyer ${signedEscrowBuyer}.\n`;
-      finalizeSale();
+      saveSignature(signedEscrowBuyer, escrowData);
       return signedEscrowBuyer;
     };
 
-    const finalizeSale = (asSeller = false) => {
-      if (signedEscrowBuyer === undefined || signedEscrowSeller === undefined) {
-        return;
-      }
+    const releaseEscrow = (asSeller = false) => {
       if (transactionPending === true) {
         alert("A transaction is currently pending.");
         return;
@@ -1329,21 +1524,49 @@ html>
           elements.buyerInfo.value +
           `New update ${new Date().toISOString()}: finalizing sale.\n`;
       }
-      (asSeller === true ? contractSeller : contractBuyer)
-        .releaseEscrow(
-          escrowData.escrowId,
-          signedEscrowBuyer,
-          signedEscrowSeller
-        )
+      fetch(apiUrl + "/get_escrow_details/" + escrowData.escrowId, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+        .then(async (r) => {
+          if (r.status !== 200) {
+            const error = r.text();
+            throw error;
+          }
+          return r.json();
+        })
         .then((r) => {
-          transactionPending = false;
+          const escrowDetails = r;
+          console.log(escrowDetails);
+          if (
+            "sellerSignature" in escrowDetails === false ||
+            "buyerSignature" in escrowDetails === false ||
+            escrowDetails.buyerSignature === "" ||
+            escrowDetails.sellerSignature === ""
+          ) {
+            throw "Incomplete signature set, buyer or seller has not signed the sale.";
+          }
+          (asSeller === true ? contractSeller : contractBuyer)
+            .releaseEscrow(
+              escrowData.escrowId,
+              escrowDetails.buyerSignature,
+              escrowDetails.sellerSignature
+            )
+            .then((r) => {
+              transactionPending = false;
+            })
+            .catch((e) => {
+              const error = parseErrorMessage(e);
+              transactionPending = false;
+              elements.buyerInfo.value =
+                elements.buyerInfo.value +
+                `Error ${new Date().toISOString()}: an error has occured while finalizing sale. ${error}\n`;
+            });
         })
         .catch((e) => {
-          const error = parseErrorMessage(e);
-          transactionPending = false;
-          elements.buyerInfo.value =
-            elements.buyerInfo.value +
-            `Error ${new Date().toISOString()}: an error has occured while finalizing sale. ${error}\n`;
+          alert("Error releasing escrow: " + e);
         });
     };
 
@@ -1502,5 +1725,51 @@ html>
             `Error ${new Date().toISOString()}: an error has occured while checking escrow details for ${escrowId}\n`;
         });
     };
+
+    const getEscrowStatus = () => {
+      let working = false;
+      setInterval(() => {
+        if (escrowData === undefined || working === true) {
+          return;
+        }
+        working = true;
+        fetch(apiUrl + "/get_escrow_logs/" + escrowData.escrowId, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+          .then((r) => {
+            if (r.status !== 200) {
+              throw false;
+            }
+            return r.json();
+          })
+          .then((r) => {
+            if ("createdEscrow" in r && r.createdEscrow === true) {
+              document.getElementById("created-escrow").style.filter = "none";
+            }
+            if ("releasedEscrow" in r && r.releasedEscrow === true) {
+              document.getElementById("released-escrow").style.filter = "none";
+            }
+            if ("signedBuyer" in r && r.signedBuyer === true) {
+              document.getElementById("signed-buyer").style.filter = "none";
+            }
+            if ("signedSeller" in r && r.signedSeller === true) {
+              document.getElementById("signed-seller").style.filter = "none";
+            }
+            if ("attestationCreated" in r && r.attestationCreated === true) {
+              document.getElementById("attestation-created").style.filter =
+                "none";
+            }
+            working = false;
+          })
+          .catch((e) => {
+            working = false;
+            return;
+          });
+      }, 1000);
+    };
+    getEscrowStatus();
   </script>
 </html>

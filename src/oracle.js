@@ -138,28 +138,42 @@ const checkEvents = () => {
       owner: from,
     };
     mongoClient
-      .update(
-        "escrows",
-        {
-          escrowId,
-        },
-        {
-          $set: {
-            uid,
+      .updateMany(
+        ["escrows", "logs"],
+        [
+          {
             escrowId,
-            token,
-            amount,
-            recipient,
-            owner: from,
-            released: false,
-            canceled: false,
-            buyerSignature: "",
-            sellerSignature: "",
-            creationTxData: e.data,
-            creationTxHash: e.transactionHash,
           },
-        },
-        true
+          {
+            escrowId,
+          },
+        ],
+        [
+          {
+            $set: {
+              lastUpdated: new Date().getTime(),
+              uid,
+              escrowId,
+              token,
+              amount,
+              recipient,
+              owner: from,
+              released: false,
+              canceled: false,
+              buyerSignature: "",
+              sellerSignature: "",
+              creationTxData: e.data,
+              creationTxHash: e.transactionHash,
+            },
+          },
+          {
+            $set: {
+              lastUpdated: new Date().getTime(),
+              createdEscrow: true,
+            },
+          },
+        ],
+        [true, true]
       )
       .then((r) => {
         if (mongoClient.hasUpdateSucceeded(r) === false) {
@@ -192,23 +206,35 @@ const checkEvents = () => {
     const amount = parseInt(data[3], 16);
     const token = `0x${data[4].substr(-40)}`;
     mongoClient
-      .update(
-        "escrows",
-        {
-          escrowId,
-        },
-        {
-          $set: {
+      .updateMany(
+        ["escrows", "logs"],
+        [
+          {
             escrowId,
-            amount,
-            recipient,
-            owner: from,
-            released: true,
-            releaseTxData: e.data,
-            releaseTxHash: e.transactionHash,
           },
-        },
-        true
+          { escrowId },
+        ],
+        [
+          {
+            $set: {
+              lastUpdated: new Date().getTime(),
+              escrowId,
+              amount,
+              recipient,
+              owner: from,
+              released: true,
+              releaseTxData: e.data,
+              releaseTxHash: e.transactionHash,
+            },
+          },
+          {
+            $set: {
+              lastUpdated: new Date().getTime(),
+              releasedEscrow: true,
+            },
+          },
+        ],
+        [true, true]
       )
       .then((r) => {
         if (mongoClient.hasUpdateSucceeded(r) === false) {
@@ -230,16 +256,31 @@ const checkEvents = () => {
         return attest(escrowData);
       })
       .then((r) => {
-        mongoClient.update(
-          "escrows",
-          {
-            escrowId,
-          },
-          {
-            $set: {
-              attestation: r,
+        mongoClient.updateMany(
+          ["escrows", "logs"],
+          [
+            {
+              escrowId,
             },
-          }
+            {
+              escrowId,
+            },
+          ],
+          [
+            {
+              $set: {
+                lastUpdated: new Date().getTime(),
+                attestation: r,
+              },
+            },
+            {
+              $set: {
+                lastUpdated: new Date().getTime(),
+                attestationCreated: true,
+              },
+            },
+          ],
+          [true, true]
         );
       })
       .catch((e) => {
@@ -259,23 +300,35 @@ const checkEvents = () => {
     const recipient = `0x${data[2].substr(-40)}`;
     const amount = parseInt(data[3], 16);
     mongoClient
-      .update(
-        "escrows",
-        {
-          escrowId,
-        },
-        {
-          $set: {
+      .updateMany(
+        ["escrows", "logs"],
+        [
+          {
             escrowId,
-            amount,
-            recipient,
-            owner: from,
-            canceled: true,
-            cancelationTxData: e.data,
-            cancelationTxHash: e.transactionHash,
           },
-        },
-        true
+          { escrowId },
+        ],
+        [
+          {
+            $set: {
+              lastUpdated: new Date().getTime(),
+              escrowId,
+              amount,
+              recipient,
+              owner: from,
+              canceled: true,
+              cancelationTxData: e.data,
+              cancelationTxHash: e.transactionHash,
+            },
+          },
+          {
+            $set: {
+              lastUpdated: new Date().getTime(),
+              canceledEscrow: true,
+            },
+          },
+        ],
+        [true, true]
       )
       .then((r) => {
         if (mongoClient.hasUpdateSucceeded(r) === false) {

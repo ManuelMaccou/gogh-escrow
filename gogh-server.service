@@ -1,0 +1,18 @@
+
+[Unit]
+Description=Gogh Server service 
+After=network-online.target
+Wants=network-online.target systemd-networkd-wait-online.service
+StartLimitIntervalSec=500
+StartLimitBurst=5
+
+[Service]
+User=root
+WorkingDirectory=/root/gogh
+ExecStart=npm run run:server
+Restart=always
+Restart=on-failure
+RestartSec=3s
+
+[Install]
+WantedBy=multi-user.target

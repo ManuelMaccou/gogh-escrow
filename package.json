@@ -7,7 +7,9 @@
     "postbuild": "rollup --config rollup.config.ts --configPlugin typescript",
     "run:oracle": "node ./src/oracle.js",
     "run:server": "node ./src/server.js",
-    "test:demo": "web-dev-server --node-resolve --app-index index.html --root-dir ./tests --port 42069 --open --watch"
+    "test:demo": "web-dev-server --node-resolve --app-index index.html --root-dir ./tests --port 42069 --open --watch",
+    "kill:server:dev": "fuser -k 80/tcp",
+    "kill:server:prod": "fuser -k 443/tcp"
   },
   "keywords": [],
   "author": "",
@@ -35,7 +37,6 @@
   },
   "dependencies": {
     "@ethereum-attestation-service/eas-sdk": "^1.5.0",
-    "body-parser": "^1.20.2",
     "compression": "^1.7.4",
     "cors": "^2.8.5",
     "ethers5": "npm:ethers@^5.7.1",
