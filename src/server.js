@@ -201,6 +201,7 @@ serverHandler.get("/get_escrow_details/:escrow_id", (req, res) => {
           seller: r.seller,
           released: r.released,
           canceled: r.canceled,
+          lastUpdated: r.lastUpdated,
           buyerSignature: r.buyerSignature,
           sellerSignature: r.sellerSignature,
           releaseTxHash: r.releaseTxHash,

@@ -129,10 +129,27 @@ Below are the list of API endpoints accessible in the server.
   seller: Seller's wallet address,
   released: If the escrow has been released - boolean,
   canceled: If the escrow has been canceled - boolean,
+  lastUpdated: when the escrow was last updated - number timestamp
   buyerSignature: The buyer's signature if signed,
   sellerSignature: The seller's signature if signed,
   releaseTxHash: The release transaction hash on base chain,
   cancelTxHash: The cancelation transaction has on base chain,
+}
+```
+
+`GET` - `/get_escrow_logs/:escrow_id`
+
+`Returns 200, 400/404` on error/not-found on success with escrow chronological activity data:
+
+```
+{
+  lastUpdated: when the log was last updated - number timestamp,
+  createdEscrow: has the escrow been created - boolean,
+  canceledEscrow: has the escrow been canceled - boolean,
+  releasedEscrow: has the escrow been released - boolean,
+  attestationCreated: has the escrow attestation been created - boolean,
+  signedBuyer: has the buyer signed the sale purchase - boolean,
+  signedSeller: has the seller signed the sale purchase - boolean
 }
 ```
 
