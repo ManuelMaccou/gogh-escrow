@@ -4,7 +4,23 @@
 
 A horizontally scalable server application for Gogh backend infrastructure.
 
-### Pre-requisites
+### Core requirements for installation
+
+The follow instruction contents will outline explanations for these installations:
+
+1. Install NodeJS
+2. Install & Configure MongoDB
+3. Configure .env file
+4. Running the Oracle
+5. Running the Server
+6. Creating the Attestation schema for https://attest.sh
+
+### Keywords:
+
+[*] Oracle: the daemon server that monitors events on the Gogh smart contract and updates the local database for escrow changes
+[*] Server: accepts requests from the front-end to update local database record of escrows (mainly for adding buyer/seller signatures)
+
+# Get Started - Installation & Configuration
 
 ## Node 18.x+
 
@@ -58,7 +74,9 @@ exit
 
 https://www.mongodb.com/docs/manual/tutorial/configure-ssl/
 
+```
 sudo systemctl restart mongod
+```
 
 ## ENV File
 

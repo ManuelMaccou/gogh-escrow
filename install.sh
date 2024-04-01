@@ -20,7 +20,7 @@ sudo apt install nodejs -y
 node -v
 npm install
 
-# Set the remove host the GIT repo
+# Set the remote url of the GIT repo
 git remote set-url origin git@github.com:pureflexaidev/gogh-backend.git
 
 # Set default max heap for memory
