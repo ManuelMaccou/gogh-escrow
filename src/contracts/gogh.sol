@@ -53,28 +53,28 @@ struct Escrow{
 
 contract Gogh {
     using SafeMath for uint256;
+    uint256 fee = 0;
     address admin;
     address beneficiary;
-    uint256 fee = 0;
-    bool enabled = false;
     bool entry = false;
-    mapping(uint256 => mapping(address => address)) hasEscrow;
+    bool enabled = false;
     mapping(address => uint256) nonces;
     mapping(address => Escrow) escrows;
+    mapping(address => bool) tokens;
+    mapping(uint256 => mapping(address => address)) hasEscrow;
     mapping(address => mapping(address => uint256)) balances;
     mapping(address => mapping(address => uint256)) inEscrow;
-    mapping(address => bool) tokens;
+    event feeState(uint256 _fee);
+    event ownership(address _admin);
+    event contractState(bool _enabled);
+    event beneficiaryState(address _beneficiary);
+    event tokenState(address _token, bool _enabled);
+    event emergencyWithdrawDetails(address _token, uint256 _amount);
+    event canceled(address _escrowId, address _owner, address _recipient, uint256 _amount);
     event created(uint256 _uid, address _escrowId, address _owner, address _recipient, address _token, uint256 _amount);
     event released(address _escrowId, address _owner, address _recipient, uint256 _amount, address _token, bytes _ownerSignature, bytes _recipientSignature);
-    event canceled(address _escrowId, address _owner, address _recipient, uint256 _amount);
-    event tokenState(address _token, bool _enabled);
-    event contractState(bool _enabled);
-    event feeState(uint256 _fee);
     event withdrawDetails(address _client, uint256 _amount);
     event depositDetails(address _client, uint256 _amount);
-    event ownership(address _admin);
-    event beneficiaryState(address _beneficiary);
-    event emergencyWithdrawDetails(address _token, uint256 _amount);
 
     modifier onlyAdmin {
         require(msg.sender == admin);
