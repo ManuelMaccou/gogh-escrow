@@ -86,6 +86,7 @@ BASE_ALCHEMY_API=https://base-sepolia.g.alchemy.com/v2/DO8BiTTs-jCAUSojKnkVZfNXm
 GOGH_CONTRACT_ADDRESS=0x90140170b6be646097364fe163e319d5242622fa
 ATTESTATION_ATTESTATOR_PRIVATE_KEY=<Attestator private key NOT the gogh contract administrator wallet>
 ATTESTATION_REGISTRY_ID=<Attestator schema address>
+RELEASE_ESCROW_GAS_SUBSIDY_HOST_PRIVATE_KEY=<Private key of the wallet that will send the transaction for subsidized releaseEscrow>
 
 # Datbase credentials
 MASTER_SQL_DB_NAME=gogh
