@@ -88,7 +88,7 @@ ATTESTATION_ATTESTATOR_PRIVATE_KEY=<Attestator private key NOT the gogh contract
 ATTESTATION_REGISTRY_ID=<Attestator schema address>
 RELEASE_ESCROW_GAS_SUBSIDY_HOST_PRIVATE_KEY=<Private key of the wallet that will send the transaction for subsidized releaseEscrow>
 
-# Datbase credentials
+# Database credentials
 MASTER_SQL_DB_NAME=gogh
 MASTER_SQL_USER=gogh
 MASTER_SQL_IP=127.0.0.1
