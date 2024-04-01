@@ -39,7 +39,7 @@ class Mongo {
         this.client = new MongoClient(
           "mongodb://" + MASTER_SQL_IP + ":" + MASTER_SQL_PORT,
           {
-            appName: "pureflex",
+            appName: "gogh",
             auth: {
               username: MASTER_SQL_USER,
               password: MASTER_SQL_PASSWORD,
