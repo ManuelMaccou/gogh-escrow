@@ -40,7 +40,7 @@ brew update
 brew install mongodb-community@7.0
 ```
 
-# Create Administrator
+### Create MongoDB Administrator
 
 To create an administrator, follow the instructions below:
 
@@ -70,7 +70,7 @@ Exit the shell:
 exit
 ```
 
-### Configure TLS/SSL
+### Configure MongoDB TLS/SSL
 
 https://www.mongodb.com/docs/manual/tutorial/configure-ssl/
 
@@ -78,7 +78,7 @@ https://www.mongodb.com/docs/manual/tutorial/configure-ssl/
 sudo systemctl restart mongod
 ```
 
-## ENV File
+## Server & Oracle ENV File
 
 ```
 # Core credentials
@@ -105,7 +105,7 @@ ENABLE_SSL=0
 PORT=42069
 ```
 
-## Install Packages
+## Install NPM Packages
 
 Perform package installation by running:
 
@@ -190,7 +190,7 @@ JSON body required:
 }
 ```
 
-## EAS Attestation Scheme Creation
+# EAS Attestation Scheme Creation & Configuration
 
 Create the following attestation schema on:
 
