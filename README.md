@@ -18,7 +18,7 @@ The follow instruction contents will outline explanations for these installation
 ### Keywords:
 
 - Oracle: the daemon server that monitors events on the Gogh smart contract and updates the local database for escrow changes
-- Server: accepts requests from the front-end to update local database record of escrows (mainly for adding buyer/seller signatures)
+- Server: the REST API server that accepts requests from the front-end to update local database record of escrows (mainly for adding buyer/seller signatures)
 
 # Get Started - Installation & Configuration
 
