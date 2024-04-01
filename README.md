@@ -103,6 +103,9 @@ SSL_CA=ssl.ca.crt
 # Server configurations (change port to 443 on production)
 ENABLE_SSL=0
 PORT=42069
+
+# Server settings
+SUBSIDIZE_RELEASE_ESCROW_GAS_FEE=0
 ```
 
 ## Install NPM Packages
