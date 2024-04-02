@@ -45,6 +45,7 @@ struct Escrow{
     address escrowId;
     address token;
     uint256 amount;
+    uint256 timestamp;
     address recipient;
     address owner;
     bool released;
@@ -54,6 +55,7 @@ struct Escrow{
 contract Gogh {
     using SafeMath for uint256;
     uint256 fee = 0;
+    uint256 expiry = 0;
     address admin;
     address beneficiary;
     bool entry = false;
@@ -65,6 +67,7 @@ contract Gogh {
     mapping(address => mapping(address => uint256)) balances;
     mapping(address => mapping(address => uint256)) inEscrow;
     event feeState(uint256 _fee);
+    event expiryState(uint256 _expiry);
     event ownership(address _admin);
     event contractState(bool _enabled);
     event beneficiaryState(address _beneficiary);
@@ -100,7 +103,7 @@ contract Gogh {
         uint256 userNonce = nonces[msg.sender];
         address escrowId = createEscrowId(userNonce, _recipient, _token, _amount, msg.sender);
         require(escrows[escrowId].owner == address(0x0), "Error: escrow already exists.");
-        Escrow memory newEscrow = Escrow(_uid, escrowId, _token, _amount, _recipient, msg.sender, false, false);
+        Escrow memory newEscrow = Escrow(_uid, escrowId, _token, _amount, _recipient, block.timestamp, msg.sender, false, false);
         inEscrow[msg.sender][_token] = inEscrow[msg.sender][_token].add(_amount);
         _escrow(newEscrow);
         nonces[msg.sender]++;
@@ -119,6 +122,7 @@ contract Gogh {
         require(escrows[_escrowId].canceled == false, "Error: escrow has already been canceled.");
         require(escrows[_escrowId].released == false, "Error: escrow has already been released.");
         Escrow memory escrow = escrows[_escrowId];
+        require(escrow[timestamp] + expiry < block.timestamp, "Error: this escrow has expired.");
         require(validateSignatures(escrow, _ownerSignature, _recipientSignature) == true, "Error: signatures mismatch.");
         uint256 earnedBalance = escrow.amount;
         if(fee > 0){
@@ -280,5 +284,14 @@ contract Gogh {
     function setBeneficiary(address _beneficiary) public onlyAdmin {
         beneficiary = _beneficiary;
         emit beneficiaryState(_beneficiary);
+    }
+
+    function setExpiry(uint256 _expiry) public onlyAdmin {
+        expiry = _expiry;
+        emit expiryState(_expiry);
+    }
+
+    function getExpiry() public view returns(uint256) {
+        return expiry;
     }
 }
