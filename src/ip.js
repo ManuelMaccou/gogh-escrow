@@ -27,9 +27,7 @@ module.exports = class IpService {
         result = { countryShort: "unknown" };
       }
     }
-    this.logService.print(
-      `Geo-location result for ${ipRaw}: ${JSON.stringify(result)}`
-    );
+    logger.print(`Geo-location result for ${ipRaw}: ${JSON.stringify(result)}`);
     return result.countryShort.length > 5
       ? { countryShort: "unknown" }
       : result;
