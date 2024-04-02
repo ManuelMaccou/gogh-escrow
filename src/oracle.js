@@ -169,6 +169,7 @@ const checkEvents = () => {
               token,
               amount,
               recipient,
+              timestamp: e.blockTimestamp,
               owner: from,
               released: false,
               canceled: false,

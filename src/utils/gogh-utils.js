@@ -1,7 +1,3 @@
-const hasEscrowExpired = (escrowId) => {
-  return new Promise((resolved, rejected) => {});
-};
-
 const signEscrowSignature = (escrowData) => {
   return new Promise((resolved, rejected) => {});
 };

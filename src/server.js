@@ -13,6 +13,7 @@ const {
   RELEASE_ESCROW_GAS_SUBSIDY_HOST_PRIVATE_KEY,
   BASE_ALCHEMY_API,
   GOGH_CONTRACT_ADDRESS,
+  ESCROW_EXPIRY_TIME_MS,
 } = process.env;
 const sslEnabled = ENABLE_SSL === "1";
 const releaseEscrowGasSubsidizer = RELEASE_ESCROW_GAS_SUBSIDY_HOST_PRIVATE_KEY;
@@ -198,12 +199,14 @@ serverHandler.get("/get_escrow_details/:escrow_id", (req, res) => {
           gogh.end(res, "No escrow with id found", 404);
           return;
         }
+        const now = new Date().getTime();
         gogh.end(res, {
           uid: r.uid,
           escrowId: r.escrowId,
           token: r.token,
           owner: r.owner,
           amount: r.amount,
+          timestamp: r.timestamp,
           seller: r.seller,
           released: r.released,
           canceled: r.canceled,
@@ -212,6 +215,10 @@ serverHandler.get("/get_escrow_details/:escrow_id", (req, res) => {
           sellerSignature: r.sellerSignature,
           releaseTxHash: r.releaseTxHash,
           cancelTxHash: r.cancelTxHash,
+          expired:
+            ESCROW_EXPIRY_TIME_MS === "0"
+              ? false
+              : now < r.timestamp + parseInt(ESCROW_EXPIRY_TIME_MS),
         });
       })
       .catch((e) => {

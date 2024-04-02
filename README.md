@@ -156,6 +156,7 @@ Below are the list of API endpoints accessible in the server.
   token: Token used - address,
   owner: Buyer's wallet address,
   amount: Amount of escrow - number,
+  timestamp: When was this escrow created - number
   seller: Seller's wallet address,
   released: If the escrow has been released - boolean,
   canceled: If the escrow has been canceled - boolean,
@@ -164,6 +165,7 @@ Below are the list of API endpoints accessible in the server.
   sellerSignature: The seller's signature if signed,
   releaseTxHash: The release transaction hash on base chain,
   cancelTxHash: The cancelation transaction has on base chain,
+  expired: Has this escrow expired - boolean
 }
 ```
 
