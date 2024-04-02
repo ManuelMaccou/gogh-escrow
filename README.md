@@ -20,6 +20,10 @@ The follow instruction contents will outline explanations for these installation
 - Oracle: the daemon server that monitors events on the Gogh smart contract and updates the local database for escrow changes
 - Server: the REST API server that accepts requests from the front-end to update local database record of escrows (mainly for adding buyer/seller signatures)
 
+# Analytics Middleware
+
+The gogh server has a middleware called `getUserAnalytics`, this can be used to store analytics data for a specific product (with a given UID [0-9]+). To get the product analytics, use the `/get_product_analytics/:product_id` endpoint (see below).
+
 # Get Started - Installation & Configuration
 
 ## Node 18.x+
@@ -176,6 +180,20 @@ Below are the list of API endpoints accessible in the server.
   attestationCreated: has the escrow attestation been created - boolean,
   signedBuyer: has the buyer signed the sale purchase - boolean,
   signedSeller: has the seller signed the sale purchase - boolean
+}
+```
+
+`GET` - `/get_product_analytics/:product_id`
+
+`Returns 200, 400/404` on error/not-found on success with product analytics data:
+
+```
+{
+  impression: how many views the product has gotten
+  region_<country>: how many views from region the product has gotten
+  platform_<operating system>: how many views from platform the product has gotten
+  browser_<browser>: how many views from browser the product has gotten
+  referer_<referer url>: how many views from referer the product has gotten
 }
 ```
 

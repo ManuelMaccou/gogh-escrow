@@ -11,6 +11,11 @@ module.exports = class GoghUtils {
     return signatureCheck.test(signature);
   }
 
+  validateProductId(productId) {
+    const productIdCheck = /^[0-9]+$/m;
+    return productIdCheck.test(productId);
+  }
+
   validateSignedPurchase(packet) {
     if ("signature" in packet === false || "unsignedData" in packet === false) {
       return false;
