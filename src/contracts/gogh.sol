@@ -122,7 +122,7 @@ contract Gogh {
         require(escrows[_escrowId].canceled == false, "Error: escrow has already been canceled.");
         require(escrows[_escrowId].released == false, "Error: escrow has already been released.");
         Escrow memory escrow = escrows[_escrowId];
-        require(escrow[timestamp] + expiry < block.timestamp, "Error: this escrow has expired.");
+        require(expirty <= 0 || block.timestamp < escrow[timestamp] + expiry, "Error: this escrow has expired.");
         require(validateSignatures(escrow, _ownerSignature, _recipientSignature) == true, "Error: signatures mismatch.");
         uint256 earnedBalance = escrow.amount;
         if(fee > 0){
