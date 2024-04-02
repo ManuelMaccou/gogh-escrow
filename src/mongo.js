@@ -13,6 +13,7 @@ const {
 
 class Mongo {
   client;
+
   constructor(logService) {
     this.initialise()
       .then((r) => {
