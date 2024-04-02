@@ -77,11 +77,23 @@ const checkEvents = () => {
   logger.print("Starting Oracle...");
   logger.print("Checking for events...");
   const canceledEscrowDetails = contract.filters.canceled();
+  const expiryStateDetails = contract.filters.expiryState();
   const createdEscrowDetails = contract.filters.created();
   const releasedEscrowDetails = contract.filters.released();
   const tokenStateDetails = contract.filters.tokenState();
   const contractStateDetails = contract.filters.contractState();
   const feeStateDetails = contract.filters.feeState();
+  const filterExpiryState = {
+    address: GOGH_CONTRACT_ADDRESS,
+    topics: [expiryStateDetails.topics[0]],
+  };
+  provider.on(filterExpiryState, (e) => {
+    logger.print(
+      `Escrow expiry has been changed to: ${e.data.toString(
+        10
+      )}ms from escrow creation time.`
+    );
+  });
   const filterContractState = {
     address: GOGH_CONTRACT_ADDRESS,
     topics: [contractStateDetails.topics[0]],
