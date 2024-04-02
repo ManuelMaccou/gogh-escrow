@@ -106,15 +106,16 @@ SSL_CRT=ssl.crt
 SSL_CA=ssl.ca.crt
 
 # Server configurations (change port to 443 on production)
+SUBSIDIZE_RELEASE_ESCROW_GAS_FEE=0
 ENABLE_SSL=0
-PORT=42069
+PORT=80
 
 # Oracle settings
 BACKUP_SERVER_IP=127.0.0.1
 BACKUP_SERVER_PORT=42069
 
-# Server settings
-SUBSIDIZE_RELEASE_ESCROW_GAS_FEE=0
+# Escrow settings (set 0 to no expiry) - this setting must reflect the current setting in the Gogh contract
+ESCROW_EXPIRY_TIME_MS=0
 ```
 
 ## Install NPM Packages
