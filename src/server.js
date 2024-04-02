@@ -24,9 +24,70 @@ const ipService = new IpService();
 gogh.startServer(PORT, sslEnabled === false);
 const serverHandler = gogh.serverSecured;
 
-const storeAnalytics = (userAgentData) => {};
+const storeAnalytics = (userAgentData) => {
+  const date = new Date();
+  const hour = date.getUTCHours();
+  date.setUTCHours(hour, 0, 0, 0);
+  const timestamp = date.getTime();
+  const day = date.getUTCDate();
+  const month = date.getMonth() + 1;
+  const year = date.getFullYear();
+  let regionData;
+  if ("ip" in userAgentData) {
+    regionData = ipService.getLocation(userAgentData.ip);
+  }
+  return new Promise((resolved, rejected) => {
+    this.sqlService
+      .update(
+        "analytics",
+        { escrowId: userAgentData.escrowId, timestamp, hour },
+        {
+          $set: { hour, day, month, year },
+          $inc: {
+            impressions: 1,
+            ...("ip" in userAgentData
+              ? {
+                  ["region_" + regionData.countryShort]: 1,
+                }
+              : {}),
+            ...("platform" in userAgentData
+              ? {
+                  ["platform_" + userAgentData.platform]: 1,
+                }
+              : {}),
+            ...("browser" in userAgentData
+              ? {
+                  ["browser_" + userAgentData.browser]: 1,
+                }
+              : {}),
+            ...("referer" in userAgentData
+              ? {
+                  ["referer_" + userAgentData.referer]: 1,
+                }
+              : {}),
+          },
+        },
+        true
+      )
+      .then((r) => {
+        if (mongoClient.hasUpdateSucceeded(r) === false) {
+          throw false;
+        }
+        resolved(true);
+        return true;
+      })
+      .catch((e) => {
+        logger.print(
+          `Unable to store analytics data for ${userAgentData.escrowId}`
+        );
+        rejected(false);
+      });
+  });
+};
 
-const getUserAnalytics = (request) => {
+const getUserAnalytics = (request, response, next) => {
+  const escrowId =
+    request.params.escrow_id ?? request.body.escrow_id ?? "unknown";
   const ip = (
     req.headers["x-forwarded-for"] || request.socket.remoteAddress
   ).replace("::ffff:", "");
@@ -49,7 +110,9 @@ const getUserAnalytics = (request) => {
     /[a-zA-Z0-9\:\/\.\-\?\&]+/.test(request.headers.referer) === false
       ? undefined
       : request.headers.referer;
-  return { ...agent, ip, referer };
+  const userAgentData = { ...agent, ip, referer, escrowId };
+  storeAnalytics(userAgentData);
+  next();
 };
 
 const releaseEscrowSubsidized = (escrowId, buyerSignature, sellerSignature) => {
@@ -78,97 +141,105 @@ const releaseEscrowSubsidized = (escrowId, buyerSignature, sellerSignature) => {
   });
 };
 
-serverHandler.get("/get_escrow_logs/:escrow_id", (req, res) => {
-  try {
-    if (goghUtils.validateAddress(req.params.escrow_id) === false) {
-      gogh.end(res, "Invalid escrow id.", 400);
-      return;
-    }
-    mongoClient
-      .find("logs", {
-        escrowId: req.params.escrow_id,
-      })
-      .then((r) => {
-        if (r === null) {
-          gogh.end(res, "No escrow with id found", 404);
-          return;
-        }
-        gogh.end(res, {
-          createdEscrow: r.createdEscrow ?? false,
-          releasedEscrow: r.releasedEscrow ?? false,
-          canceledEscrow: r.canceledEscrow ?? false,
-          signedBuyer: r.signedBuyer ?? false,
-          signedSeller: r.signedSeller ?? false,
-          attestationCreated: r.attestationCreated ?? false,
-          lastUpdated: r.lastUpdated,
+serverHandler.get(
+  "/get_escrow_logs/:escrow_id",
+  getUserAnalytics,
+  (req, res) => {
+    try {
+      if (goghUtils.validateAddress(req.params.escrow_id) === false) {
+        gogh.end(res, "Invalid escrow id.", 400);
+        return;
+      }
+      mongoClient
+        .find("logs", {
+          escrowId: req.params.escrow_id,
+        })
+        .then((r) => {
+          if (r === null) {
+            gogh.end(res, "No escrow with id found", 404);
+            return;
+          }
+          gogh.end(res, {
+            createdEscrow: r.createdEscrow ?? false,
+            releasedEscrow: r.releasedEscrow ?? false,
+            canceledEscrow: r.canceledEscrow ?? false,
+            signedBuyer: r.signedBuyer ?? false,
+            signedSeller: r.signedSeller ?? false,
+            attestationCreated: r.attestationCreated ?? false,
+            lastUpdated: r.lastUpdated,
+          });
+        })
+        .catch((e) => {
+          logger.error(
+            "Error occured during process (get_escrow_details): " +
+              JSON.stringify(e)
+          );
+          gogh.end(
+            res,
+            "An error has occured while processing your request.",
+            400
+          );
         });
-      })
-      .catch((e) => {
-        logger.error(
-          "Error occured during process (get_escrow_details): " +
-            JSON.stringify(e)
-        );
-        gogh.end(
-          res,
-          "An error has occured while processing your request.",
-          400
-        );
-      });
-  } catch (e) {
-    logger.error(e);
-    gogh.end(res, "An error has occured while processing your request.", 400);
-  }
-});
-
-serverHandler.get("/get_escrow_details/:escrow_id", (req, res) => {
-  try {
-    if (goghUtils.validateAddress(req.params.escrow_id) === false) {
-      gogh.end(res, "Invalid escrow id.", 400);
-      return;
+    } catch (e) {
+      logger.error(e);
+      gogh.end(res, "An error has occured while processing your request.", 400);
     }
-    mongoClient
-      .find("escrows", {
-        escrowId: req.params.escrow_id,
-      })
-      .then((r) => {
-        if (r === null) {
-          gogh.end(res, "No escrow with id found", 404);
-          return;
-        }
-        gogh.end(res, {
-          uid: r.uid,
-          escrowId: r.escrowId,
-          token: r.token,
-          owner: r.owner,
-          amount: r.amount,
-          seller: r.seller,
-          released: r.released,
-          canceled: r.canceled,
-          lastUpdated: r.lastUpdated,
-          buyerSignature: r.buyerSignature,
-          sellerSignature: r.sellerSignature,
-          releaseTxHash: r.releaseTxHash,
-          cancelTxHash: r.cancelTxHash,
-        });
-      })
-      .catch((e) => {
-        logger.error(
-          "Error occured during process (get_escrow_details): " +
-            JSON.stringify(e)
-        );
-        gogh.end(
-          res,
-          "An error has occured while processing your request.",
-          400
-        );
-      });
-  } catch (e) {
-    logger.error(e);
-    gogh.end(res, "An error has occured while processing your request.", 400);
   }
-});
+);
 
-serverHandler.post("/sign_purchase", (req, res) => {
+serverHandler.get(
+  "/get_escrow_details/:escrow_id",
+  getUserAnalytics,
+  (req, res) => {
+    try {
+      if (goghUtils.validateAddress(req.params.escrow_id) === false) {
+        gogh.end(res, "Invalid escrow id.", 400);
+        return;
+      }
+      mongoClient
+        .find("escrows", {
+          escrowId: req.params.escrow_id,
+        })
+        .then((r) => {
+          if (r === null) {
+            gogh.end(res, "No escrow with id found", 404);
+            return;
+          }
+          gogh.end(res, {
+            uid: r.uid,
+            escrowId: r.escrowId,
+            token: r.token,
+            owner: r.owner,
+            amount: r.amount,
+            seller: r.seller,
+            released: r.released,
+            canceled: r.canceled,
+            lastUpdated: r.lastUpdated,
+            buyerSignature: r.buyerSignature,
+            sellerSignature: r.sellerSignature,
+            releaseTxHash: r.releaseTxHash,
+            cancelTxHash: r.cancelTxHash,
+          });
+        })
+        .catch((e) => {
+          logger.error(
+            "Error occured during process (get_escrow_details): " +
+              JSON.stringify(e)
+          );
+          gogh.end(
+            res,
+            "An error has occured while processing your request.",
+            400
+          );
+        });
+    } catch (e) {
+      logger.error(e);
+      gogh.end(res, "An error has occured while processing your request.", 400);
+    }
+  }
+);
+
+serverHandler.post("/sign_purchase", getUserAnalytics, (req, res) => {
   try {
     if (goghUtils.validateSignedPurchase(req.body) === false) {
       gogh.end(res, "Invalid escrow packet.", 400);
