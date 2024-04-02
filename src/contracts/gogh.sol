@@ -103,7 +103,7 @@ contract Gogh {
         uint256 userNonce = nonces[msg.sender];
         address escrowId = createEscrowId(userNonce, _recipient, _token, _amount, msg.sender);
         require(escrows[escrowId].owner == address(0x0), "E4");
-        Escrow memory newEscrow = Escrow(_uid, escrowId, _token, _amount, _recipient, block.timestamp, msg.sender, false, false);
+        Escrow memory newEscrow = Escrow(_uid, escrowId, _token, _amount, block.timestamp, _recipient, msg.sender, false, false);
         inEscrow[msg.sender][_token] = inEscrow[msg.sender][_token].add(_amount);
         _escrow(newEscrow);
         nonces[msg.sender]++;
@@ -122,7 +122,7 @@ contract Gogh {
         require(escrows[_escrowId].canceled == false, "E6");
         require(escrows[_escrowId].released == false, "E7");
         Escrow memory escrow = escrows[_escrowId];
-        require(expirty <= 0 || block.timestamp < escrow[timestamp] + expiry, "E8");
+        require(expiry <= 0 || block.timestamp < escrow.timestamp + expiry, "E8");
         require(validateSignatures(escrow, _ownerSignature, _recipientSignature) == true, "E9");
         uint256 earnedBalance = escrow.amount;
         if(fee > 0){
