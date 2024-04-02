@@ -3,6 +3,7 @@ const goghContractAbi = require("./assets/gogh-contract.abi.json");
 const GoghUtils = require("./gogh-utils.js");
 const Gogh = require("./gogh.js");
 const Mongo = require("./mongo.js");
+const IpService = require("./ip.js");
 const logger = require("./logger.js");
 
 const {
@@ -19,8 +20,37 @@ const susidizeReleaseEscrowGas = SUBSIDIZE_RELEASE_ESCROW_GAS_FEE === "1";
 const gogh = new Gogh();
 const goghUtils = new GoghUtils();
 const mongoClient = new Mongo();
+const ipService = new IpService();
 gogh.startServer(PORT, sslEnabled === false);
 const serverHandler = gogh.serverSecured;
+
+const storeAnalytics = (userAgentData) => {};
+
+const getUserAnalytics = (request) => {
+  const ip = (
+    req.headers["x-forwarded-for"] || request.socket.remoteAddress
+  ).replace("::ffff:", "");
+  let userAgentIs = (useragent) => {
+    let r = [];
+    for (let i in useragent) if (useragent[i] === true) r.push(i);
+    return r;
+  };
+  const agent = {
+    browser: request.useragent.browser,
+    version: request.useragent.version,
+    os: request.useragent.os,
+    platform: request.useragent.platform,
+    source: request.useragent.source,
+    is: userAgentIs(request.useragent),
+  };
+  const referer =
+    request.headers.referer === undefined ||
+    request.headers.referer === null ||
+    /[a-zA-Z0-9\:\/\.\-\?\&]+/.test(request.headers.referer) === false
+      ? undefined
+      : request.headers.referer;
+  return { ...agent, ip, referer };
+};
 
 const releaseEscrowSubsidized = (escrowId, buyerSignature, sellerSignature) => {
   if (buyerSignature === "" || sellerSignature === "") {
