@@ -241,6 +241,13 @@ serverHandler.post("/sign_purchase", (req, res) => {
     };
     const signature = packet.signature;
     const signer = goghUtils.getSignatureSigner(escrowData, signature);
+    if (
+      signer.toLowerCase() !== escrowData.owner &&
+      signer.toLowerCase() !== escrowData.recipient
+    ) {
+      gogh.end(res, "Invalid escrow packet. Signature mismatch.", 400);
+      return;
+    }
     mongoClient
       .find("escrows", {
         escrowId: escrowData.escrowId,
