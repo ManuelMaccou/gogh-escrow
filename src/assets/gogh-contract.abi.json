@@ -143,6 +143,19 @@
       {
         "indexed": false,
         "internalType": "uint256",
+        "name": "_expiry",
+        "type": "uint256"
+      }
+    ],
+    "name": "expiryState",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
         "name": "_fee",
         "type": "uint256"
       }
@@ -396,6 +409,19 @@
   {
     "inputs": [
       {
+        "internalType": "uint256",
+        "name": "_expiry",
+        "type": "uint256"
+      }
+    ],
+    "name": "setExpiry",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address",
         "name": "_admin",
         "type": "address"
@@ -468,6 +494,11 @@
             "type": "uint256"
           },
           {
+            "internalType": "uint256",
+            "name": "timestamp",
+            "type": "uint256"
+          },
+          {
             "internalType": "address",
             "name": "recipient",
             "type": "address"
@@ -491,6 +522,19 @@
         "internalType": "struct Escrow",
         "name": "",
         "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getExpiry",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -524,7 +568,7 @@
     "inputs": [
       {
         "internalType": "bytes",
-        "name": "sig",
+        "name": "_sig",
         "type": "bytes"
       }
     ],
@@ -571,6 +615,11 @@
           {
             "internalType": "uint256",
             "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "timestamp",
             "type": "uint256"
           },
           {

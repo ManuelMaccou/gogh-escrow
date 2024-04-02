@@ -82,8 +82,8 @@
           Gogh Contract:
           <a
             target="_blank"
-            href="https://sepolia.basescan.org/address/0xca683274e1bcf90de6edc59b0a5f55814c438c22"
-            >0xca683274e1bcf90de6edc59b0a5f55814c438c22</a
+            href="https://sepolia.basescan.org/address/0x354f092ce61b29415be2d62c0428afec25ef4f02"
+            >0x354f092ce61b29415be2d62c0428afec25ef4f02</a
           >
         </li>
         <li>
@@ -432,7 +432,7 @@
       provider
     );
     const tokenAddress = "0x036CbD53842c5426634e7929541eC2318f3dCF7e";
-    const contractAddress = "0xca683274e1bcf90de6edc59b0a5f55814c438c22";
+    const contractAddress = "0x354f092ce61b29415be2d62c0428afec25ef4f02";
     const contractABI = [
       {
         anonymous: false,
@@ -570,6 +570,19 @@
           },
         ],
         name: "emergencyWithdrawDetails",
+        type: "event",
+      },
+      {
+        anonymous: false,
+        inputs: [
+          {
+            indexed: false,
+            internalType: "uint256",
+            name: "_expiry",
+            type: "uint256",
+          },
+        ],
+        name: "expiryState",
         type: "event",
       },
       {
@@ -831,6 +844,19 @@
       {
         inputs: [
           {
+            internalType: "uint256",
+            name: "_expiry",
+            type: "uint256",
+          },
+        ],
+        name: "setExpiry",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
+      },
+      {
+        inputs: [
+          {
             internalType: "address",
             name: "_admin",
             type: "address",
@@ -903,6 +929,11 @@
                 type: "uint256",
               },
               {
+                internalType: "uint256",
+                name: "timestamp",
+                type: "uint256",
+              },
+              {
                 internalType: "address",
                 name: "recipient",
                 type: "address",
@@ -926,6 +957,19 @@
             internalType: "struct Escrow",
             name: "",
             type: "tuple",
+          },
+        ],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
+        inputs: [],
+        name: "getExpiry",
+        outputs: [
+          {
+            internalType: "uint256",
+            name: "",
+            type: "uint256",
           },
         ],
         stateMutability: "view",
@@ -959,7 +1003,7 @@
         inputs: [
           {
             internalType: "bytes",
-            name: "sig",
+            name: "_sig",
             type: "bytes",
           },
         ],
@@ -1006,6 +1050,11 @@
               {
                 internalType: "uint256",
                 name: "amount",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "timestamp",
                 type: "uint256",
               },
               {
