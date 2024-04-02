@@ -217,3 +217,22 @@ amount - uint256
 ```
 
 Take the scheme registry UID and update the environment file variable `ATTESTATION_REGISTRY_ID`
+
+# Gogh Contract Error Codes
+
+```
+E1 - Error: token is currently disabled.
+E2 - Error: contract is currently disabled.
+E3 - Error: your escrow for this product is already active.
+E4 - Error: escrow already exists.
+E5 - Error: invalid escrow, or sender is not escrow owner or administrator.
+E6 - Error: escrow has already been canceled.
+E7 - Error: escrow has already been released.
+E8 - Error: this escrow has expired.
+E9 - Error: signatures mismatch.
+E10 - Error: insufficient funds to deposit.
+E11 - Error: not enough balance in the contract.
+E12 - Error: invalid signature length.
+E13 - Error: not an admin.
+E14 - Error: reentrancy detected.
+```
