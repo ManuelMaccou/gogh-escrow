@@ -24,7 +24,7 @@ const gogh = new Gogh();
 const goghUtils = new GoghUtils();
 const mongoClient = new Mongo();
 const ipService = new IpService();
-gogh.startServer(PORT, sslEnabled === false);
+gogh.startServer(PORT, sslEnabled);
 const serverHandler = gogh.serverSecured;
 logger.print("SSL Enabled: " + sslEnabled);
 
