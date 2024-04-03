@@ -51,7 +51,7 @@ module.exports = class Gogh {
         this.serverSecured.setTimeout(dropConnectionsAfterMs);
       });
     } catch (e) {
-      logger.error("Unable to resolve SSL.");
+      logger.error("Unable to resolve SSL. " + e);
     }
   }
 
