@@ -1,19 +1,11 @@
 const logger = require("./logger.js");
-const path = require("path");
-const fileURLToPath = require("url");
 const IP2Location = require("ip2location-nodejs");
-const metaUrl = import.meta.url;
 
 module.exports = class IpService {
   ip2location;
-  softBinDir = "";
-  __filename = "";
-  __dirname = "";
+  softBinDir = __dirname + "./assets/geo-location/";
 
   constructor() {
-    this.__filename = fileURLToPath(metaUrl);
-    this.__dirname = path.dirname(__filename);
-    this.softBinDir = this.__dirname + "./assets/geo-location/";
     this.ip2location = new IP2Location();
     this.ip2location.open(this.softBinDir + "ip2location-lite.BIN");
     logger.print("Initailising IP Geo Location service...");
