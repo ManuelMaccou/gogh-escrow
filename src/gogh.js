@@ -10,30 +10,28 @@ module.exports = class Gogh {
   server;
   serverSecured;
 
-  startServer(port, noTls = false) {
+  startServer(port, tls = false) {
     try {
       this.server = express();
-      const ssl = noTls === true ? {} : this.readSSL();
-      if (ssl === false && noTls === false) {
+      const ssl = tls === false ? {} : this.readSSL();
+      if (ssl === false && tls === true) {
         throw "SSL Read Error";
       }
-      this.createServer(ssl, port, noTls);
+      this.createServer(ssl, port, tls);
       logger.print(
-        `Gogh server initialised with ${
-          noTls === false ? " no" : ""
-        }SSL enabled.`
+        `Gogh server initialised with ${tls === false ? "no" : ""} SSL enabled.`
       );
     } catch (e) {
       logger.error("Error when creating express server: " + e);
     }
   }
 
-  createServer(ssl, port, noTls = false) {
+  createServer(ssl, port, tls = false) {
     try {
       const dropConnectionsAfterMs = 30000;
       const maxConnections = 500;
       this.serverSecured =
-        noTls === true ? this.server : https.createServer(ssl, this.server);
+        tls === false ? this.server : https.createServer(ssl, this.server);
       this.serverSecured.use(
         cors({
           allowedOrigin: "*",
@@ -49,10 +47,7 @@ module.exports = class Gogh {
       this.serverSecured.use(useragent);
       this.serverSecured.use(express.json());
       this.serverSecured.listen(port, () => {
-        this.server.maxConnections = maxConnections;
-        if (noTls === true) {
-          return;
-        }
+        this.serverSecured.maxConnections = maxConnections;
         this.serverSecured.setTimeout(dropConnectionsAfterMs);
       });
     } catch (e) {
