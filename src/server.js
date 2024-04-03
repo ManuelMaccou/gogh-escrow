@@ -137,7 +137,7 @@ const releaseEscrowSubsidized = (escrowId, buyerSignature, sellerSignature) => {
     goghContract
       .releaseEscrow(escrowId, buyerSignature, sellerSignature)
       .then((r) => {
-        rejected(true);
+        resolved(true);
       })
       .catch((e) => {
         rejected(e);
