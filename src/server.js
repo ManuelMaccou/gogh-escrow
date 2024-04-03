@@ -391,6 +391,7 @@ serverHandler.post("/sign_purchase", (req, res) => {
           releaseEscrowGasSubsidizer !== null &&
           releaseEscrowGasSubsidizer !== ""
         ) {
+          logger.print("Subsidizing gas for escrow release...");
           return releaseEscrowSubsidized(
             localEscrowData.escrowId,
             localEscrowData.buyerSignature,
