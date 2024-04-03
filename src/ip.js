@@ -1,5 +1,5 @@
 const logger = require("./logger.js");
-const IP2Location = require("ip2location-nodejs");
+const { IP2Location } = require("ip2location-nodejs");
 
 module.exports = class IpService {
   ip2location;
