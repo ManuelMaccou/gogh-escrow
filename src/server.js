@@ -41,7 +41,7 @@ const storeAnalytics = (userAgentData) => {
     regionData = ipService.getLocation(userAgentData.ip);
   }
   return new Promise((resolved, rejected) => {
-    this.sqlService
+    mongoClient
       .update(
         "analytics",
         { productId: userAgentData.productId, timestamp, hour },
