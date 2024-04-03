@@ -275,7 +275,7 @@ serverHandler.get("/get_product_analytics/:product_id", (req, res) => {
   }
 });
 
-serverHandler.post("/sign_purchase", getUserAnalytics, (req, res) => {
+serverHandler.post("/sign_purchase", (req, res) => {
   try {
     if (goghUtils.validateSignedPurchase(req.body) === false) {
       gogh.end(res, "Invalid escrow packet.", 400);
