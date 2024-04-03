@@ -48,7 +48,7 @@ module.exports = class Gogh {
       this.serverSecured.use(express.json());
       this.serverSecured.listen(port, () => {
         this.serverSecured.maxConnections = maxConnections;
-        this.serverSecured.setTimeout(dropConnectionsAfterMs);
+        this.server.setTimeout(dropConnectionsAfterMs);
       });
     } catch (e) {
       logger.error("Unable to resolve SSL. " + e);
