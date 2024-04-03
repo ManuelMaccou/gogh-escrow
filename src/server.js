@@ -1,3 +1,5 @@
+const env = require("dotenv");
+env.config();
 const ethers = require("ethers5");
 const goghContractAbi = require("./assets/gogh-contract.abi.json");
 const GoghUtils = require("./gogh-utils.js");
