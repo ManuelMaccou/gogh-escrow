@@ -6,9 +6,13 @@ module.exports = class IpService {
   softBinDir = "root/gogh-backend/src/assets/geo-location/";
 
   constructor() {
-    this.ip2location = new IP2Location();
-    this.ip2location.open(this.softBinDir + "ip2location-lite.BIN");
-    logger.print("Initailising IP Geo Location service...");
+    try {
+      this.ip2location = new IP2Location();
+      this.ip2location.open(this.softBinDir + "ip2location-lite.BIN");
+      logger.print("Initailising IP Geo Location service...");
+    } catch (e) {
+      logger.print(e);
+    }
   }
 
   getLocation(ipRaw) {
