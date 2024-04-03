@@ -93,7 +93,7 @@ const getUserAnalytics = (request, response, next) => {
   const productId =
     request.params.product_id ?? request.body.product_id ?? "unknown";
   const ip = (
-    req.headers["x-forwarded-for"] || request.socket.remoteAddress
+    request.headers["x-forwarded-for"] || request.socket.remoteAddress
   ).replace("::ffff:", "");
   let userAgentIs = (useragent) => {
     let r = [];
