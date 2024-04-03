@@ -7,7 +7,7 @@ module.exports = class GoghUtilities {
     this.apiUrl = goghServerApiUrl;
   }
 
-  signEscrowSignature(escrowData) {
+  signEscrowSignature(escrowData, wallet) {
     return new Promise((resolved, rejected) => {
       const payload = ethers.utils.defaultAbiCoder.encode(
         ["address", "address", "uint256", "address", "address"],
@@ -21,7 +21,7 @@ module.exports = class GoghUtilities {
       );
       const escrowMessageHash = ethers.utils.keccak256(payload);
       const messageHashBinary = ethers.utils.arrayify(escrowMessageHash);
-      sellerWallet
+      wallet
         .signMessage(messageHashBinary)
         .then((r) => {
           resolved(r);
