@@ -128,6 +128,10 @@ const releaseEscrowSubsidized = (escrowId, buyerSignature, sellerSignature) => {
     releaseEscrowGasSubsidizer,
     provider
   );
+  logger.print("Subsidizer contract target: " + GOGH_CONTRACT_ADDRESS);
+  logger.print(
+    `Subsidizing ${escrowId} with buyer signature ${buyerSignature} and seller signature ${sellerSignature}...`
+  );
   const goghContract = new ethers.Contract(
     GOGH_CONTRACT_ADDRESS,
     goghContractAbi,
