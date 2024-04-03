@@ -44,7 +44,7 @@ module.exports = class Gogh {
           ],
         })
       );
-      this.serverSecured.use(useragent);
+      this.serverSecured.use(useragent.express());
       this.serverSecured.use(express.json());
       this.serverSecured.listen(port, () => {
         this.serverSecured.maxConnections = maxConnections;
