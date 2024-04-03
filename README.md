@@ -130,12 +130,36 @@ The Oracle keeps track of events (sales) on-chain and updates the local database
 npm run run:oracle
 ```
 
+Restart server & oracle:
+
+```
+bash restart.sh
+```
+
+Check live oracle logs:
+
+```
+journalctl -u gogh-oracle -e
+```
+
 ## Run Server
 
 The Server acceps REST API requests from the public and updates the local database.
 
 ```
 npm run run:server
+```
+
+Restart server & oracle:
+
+```
+bash restart.sh
+```
+
+Check live server logs:
+
+```
+journalctl -u gogh-server -e
 ```
 
 ## Server API Endpoints
