@@ -3,7 +3,7 @@ const { IP2Location } = require("ip2location-nodejs");
 
 module.exports = class IpService {
   ip2location;
-  softBinDir = __dirname + "./assets/geo-location/";
+  softBinDir = "root/gogh-backend/src/assets/geo-location/";
 
   constructor() {
     this.ip2location = new IP2Location();
