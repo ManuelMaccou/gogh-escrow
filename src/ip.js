@@ -3,12 +3,13 @@ const { IP2Location } = require("ip2location-nodejs");
 
 module.exports = class IpService {
   ip2location;
-  softBinDir = "root/gogh-backend/src/assets/geo-location/";
 
   constructor() {
     try {
       this.ip2location = new IP2Location();
-      this.ip2location.open(this.softBinDir + "ip2location-lite.BIN");
+      this.ip2location.open(
+        "root/gogh-backend/src/assets/geo-location/ip2location-lite.BIN"
+      );
       logger.print("Initailising IP Geo Location service...");
     } catch (e) {
       logger.print(e);
