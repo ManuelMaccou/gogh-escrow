@@ -18,7 +18,11 @@ module.exports = class Gogh {
         throw "SSL Read Error";
       }
       this.createServer(ssl, port, noTls);
-      logger.print("Gogh server initialised");
+      logger.print(
+        `Gogh server initialised with ${
+          noTls === false ? "no" : ""
+        } SSL enabled.`
+      );
     } catch (e) {
       logger.error("Error when creating express server: " + e);
     }
