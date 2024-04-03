@@ -336,6 +336,7 @@ serverHandler.post("/sign_purchase", (req, res) => {
         };
         const signerIsBuyer = localEscrowData.buyer === signer.toLowerCase();
         localEscrowData = {
+          ...localEscrowData,
           ...(signerIsBuyer === true
             ? {
                 buyerSignature: signature,
@@ -393,7 +394,13 @@ serverHandler.post("/sign_purchase", (req, res) => {
           susidizeReleaseEscrowGas === true &&
           releaseEscrowGasSubsidizer !== undefined &&
           releaseEscrowGasSubsidizer !== null &&
-          releaseEscrowGasSubsidizer !== ""
+          releaseEscrowGasSubsidizer !== "" &&
+          localEscrowData.buyerSignature !== undefined &&
+          localEscrowData.buyerSignature !== null &&
+          localEscrowData.buyerSignature !== "" &&
+          localEscrowData.sellerSignature !== undefined &&
+          localEscrowData.sellerSignature !== null &&
+          localEscrowData.sellerSignature !== ""
         ) {
           logger.print("Subsidizing gas for escrow release...");
           return releaseEscrowSubsidized(
