@@ -2,7 +2,7 @@ const env = require("dotenv");
 env.config();
 const fs = require("fs");
 const cors = require("cors");
-const useragent = require("express-useragent");
+const { useragent } = require("express-useragent");
 const express = require("express");
 const logger = require("./logger.js");
 
