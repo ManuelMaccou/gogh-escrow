@@ -2,6 +2,7 @@ const fs = require("fs");
 const cors = require("cors");
 const useragent = require("express-useragent");
 const express = require("express");
+const logger = require("./logger.js");
 
 module.exports = class Gogh {
   server;
