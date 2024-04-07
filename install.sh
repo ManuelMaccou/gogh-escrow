@@ -21,7 +21,7 @@ node -v
 npm install
 
 # Set the remote url of the GIT repo
-git remote set-url origin git@github.com:pureflexaidev/gogh-backend.git
+git remote set-url origin git@github.com:ManuelMaccou/gogh-escrow.git
 
 # Set default max heap for memory
 echo 'export NODE_OPTIONS="--max-old-space-size=16384"' >> ~/.bashrc
