@@ -38,7 +38,7 @@ class Mongo {
     return new Promise((resolved, rejected) => {
       try {
         this.client = new MongoClient(
-          "mongodb://" + MASTER_SQL_IP + ":" + MASTER_SQL_PORT,
+           MASTER_SQL_IP,
           {
             appName: "gogh",
             auth: {
