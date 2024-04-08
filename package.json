@@ -41,6 +41,8 @@
     "@ethereum-attestation-service/eas-sdk": "^1.5.0",
     "compression": "^1.7.4",
     "cors": "^2.8.5",
+    "http": "0.0.1-security",
+    "https": "1.0.0",
     "ethers5": "npm:ethers@^5.7.1",
     "ethers6": "npm:ethers@^6.11.1",
     "express": "^4.19.2",
