@@ -33,7 +33,7 @@ module.exports = class Gogh {
       const maxConnections = 500;
       this.serverSecured =
         tls === false ? this.server : https.createServer(ssl, this.server);
-      this.serverSecured.use(
+      this.server.use(
         cors({
           allowedOrigin: "*",
           allowedHeaders: [
@@ -45,9 +45,9 @@ module.exports = class Gogh {
           ],
         })
       );
-      this.serverSecured.use(useragent.express());
-      this.serverSecured.use(express.json());
-      this.serverSecured.listen(port, () => {
+      this.server.use(useragent.express());
+      this.server.use(express.json());
+      this.server.listen(port, () => {
         this.serverSecured.maxConnections = maxConnections;
       });
     } catch (e) {
