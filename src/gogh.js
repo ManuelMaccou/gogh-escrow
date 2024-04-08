@@ -59,9 +59,8 @@ module.exports = class Gogh {
       const sslPath = "../ssl";
       const { SSL_KEY, SSL_CRT, SSL_CA } = process.env;
       const sslCredentials = {
-        key: fs.readFileSync(`${sslPath}/${SSL_KEY}`, "utf-8"),
-        cert: fs.readFileSync(`${sslPath}/${SSL_CRT}`, "utf-8"),
-        ca: fs.readFileSync(`${sslPath}/${SSL_CA}`, "utf-8"),
+        key: SSL_KEY,
+        cert: SSL_CRT,
       };
       return sslCredentials;
     } catch (e) {
