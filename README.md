@@ -103,7 +103,6 @@ MASTER_SQL_PASSWORD=<Mongo DB password>
 ENABLE_SSL=0
 SSL_KEY=ssl.key
 SSL_CRT=ssl.crt
-SSL_CA=ssl.ca.crt
 
 # Server configurations (change port to 443 on production)
 SUBSIDIZE_RELEASE_ESCROW_GAS_FEE=0

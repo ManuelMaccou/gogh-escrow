@@ -61,7 +61,6 @@ module.exports = class Gogh {
       const sslCredentials = {
         key: fs.readFileSync(`${sslPath}/${SSL_KEY}`, "utf-8"),
         cert: fs.readFileSync(`${sslPath}/${SSL_CRT}`, "utf-8"),
-        ca: fs.readFileSync(`${sslPath}/${SSL_CA}`, "utf-8"),
       };
       return sslCredentials;
     } catch (e) {
