@@ -36,6 +36,7 @@
     "tslib": "^2.5.0"
   },
   "dependencies": {
+    "pm2": "^5.3.1",
     "@ethereum-attestation-service/eas-sdk": "^1.5.0",
     "compression": "^1.7.4",
     "cors": "^2.8.5",
