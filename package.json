@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Gogh",
   "scripts": {
+    "start": "pm2-runtime start ecosystem.config.js",
     "build": "rimraf ./tmp && rimraf ./dist",
     "postbuild": "rollup --config rollup.config.ts --configPlugin typescript",
     "run:oracle": "node ./src/oracle.js",
