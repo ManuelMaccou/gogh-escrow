@@ -60,6 +60,7 @@ contract Gogh {
     address beneficiary;
     bool entry = false;
     bool enabled = false;
+    address ethTokenAddress = address(0x0000000000000000000000000000000000000001);
     mapping(address => uint256) nonces;
     mapping(address => Escrow) escrows;
     mapping(address => bool) tokens;
@@ -93,13 +94,14 @@ contract Gogh {
 
     constructor() payable {
         admin = msg.sender;
+        tokens[ethTokenAddress] = true;
         beneficiary = address(0xCA430AD5C04Afe38A4388e88A67Ca35fd405b773);
     }
 
     function createEscrow(uint256 _uid, address _recipient, address _token, uint256 _amount) public payable reentrancy {
         require(tokens[_token] == true, "E1");
         require(enabled == true, "E2");
-        require(hasEscrow[_uid][msg.sender] == address(0), "E3");
+        require(hasEscrow[_uid][msg.sender] == address(0x0), "E3");
         uint256 userNonce = nonces[msg.sender];
         address escrowId = createEscrowId(userNonce, _recipient, _token, _amount, msg.sender);
         require(escrows[escrowId].owner == address(0x0), "E4");
@@ -145,7 +147,7 @@ contract Gogh {
         require(tokens[escrow.token] == true, "E1");
         balances[escrow.owner][escrow.token] = balances[escrow.owner][escrow.token].add(escrows[_escrowId].amount);
         inEscrow[msg.sender][escrow.token] = inEscrow[msg.sender][escrow.token].sub(escrow.amount);
-        if(escrow.token == address(0x0)){
+        if(escrow.token == ethTokenAddress){
             payable(escrow.owner).transfer(escrow.amount);
         } else {
             IERC20(escrow.token).transfer(escrow.owner, escrow.amount);   
@@ -169,7 +171,7 @@ contract Gogh {
     function deposit(address _token, uint256 _amount) private {
         require(tokens[_token] == true, "E1");
         require(enabled == true, "E2");
-        if(_token == address(0x0)){
+        if(_token == ethTokenAddress){
             require(msg.sender.balance >= _amount, "E10");
             require(msg.value >= _amount, "E10");
         } else {
@@ -191,7 +193,7 @@ contract Gogh {
         }
         require(balances[_escrowData.recipient][_escrowData.token] >= earnedBalance, "E11");
         balances[_escrowData.recipient][_escrowData.token] = balances[_escrowData.recipient][_escrowData.token].sub(earnedBalance);
-        if(_escrowData.token == address(0x0)){
+        if(_escrowData.token == ethTokenAddress){
             payable(_escrowData.recipient).transfer(earnedBalance);
             if(fee > 0){
                 payable(beneficiary).transfer(houseFee);
@@ -241,7 +243,7 @@ contract Gogh {
     }
 
     function emergencyWithdraw(address _token) public onlyAdmin reentrancy {
-        if(_token == address(0x0)){
+        if(_token == ethTokenAddress){
             payable(admin).transfer(address(this).balance);
             emit emergencyWithdrawDetails(_token, address(this).balance);
         } else {
