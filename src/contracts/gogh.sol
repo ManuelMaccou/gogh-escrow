@@ -129,7 +129,7 @@ contract Gogh {
             uint256 houseFee = earnedBalance.div(100).mul(fee);
             earnedBalance = earnedBalance.sub(houseFee);
         }
-        escrow.released = true;
+        escrows[_escrowId].released = true;
         balances[escrow.recipient][escrow.token] = balances[escrow.recipient][escrow.token].add(earnedBalance);
         inEscrow[escrow.owner][escrow.token] = inEscrow[escrow.owner][escrow.token].sub(escrow.amount);
         withdraw(escrow);
